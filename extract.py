@@ -94,41 +94,22 @@ for i in range(3):
     parse_table(trs, 2, 1)
 
 # Parse available players
-URL = 'https://football.fantasysports.yahoo.com/f1/542214/players'
+URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1'
 driver.get(URL)
-assert 'Yahoo' in driver.title
-# Apply filters
-elem = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.XPATH, "//select[@id='statselect']/option[text()='Next 4 Weeks (proj)']"))
-)
-elem.click()
-elem = driver.find_element_by_xpath("//input[@value='Filter']")
-driver.execute_script("arguments[0].click();", elem)
-sleep(1)  # TODO: wait only until the table is updated
-# Sort by projected stats
-elem = driver.find_element_by_xpath("//a[text()='Fan Pts']")
-driver.execute_script("arguments[0].click();", elem)
-sleep(2)  # TODO: wait only until the table is updated
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
 parse_table(trs, 1, 0)
 
 # Parse next page
-elem = driver.find_element_by_xpath("//a[text()='Next 25']")
-sleep(5)  # TODO: wait only until the table is updated
-elem.click()
-sleep(3)  # TODO: wait only until the table is updated
+URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=25'
+driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
 parse_table(trs, 1, 0)
 
-# Parse available defenses
-sleep(5)  # TODO: wait only until the table is updated
-elem = driver.find_element_by_xpath("//select[@id='posselect']/option[text()='DEF']")
-driver.execute_script("arguments[0].click();", elem)
-elem = driver.find_element_by_xpath("//input[@value='Filter']")
-driver.execute_script("arguments[0].click();", elem)
-sleep(3)  # TODO: wait only until the table is updated
+# Parse defenses
+URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?&sort=PTS&sdir=1&status=A&pos=DEF&stat1=S_PN4W&jsenabled=1'
+driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
 parse_table(trs, 1, 0)
