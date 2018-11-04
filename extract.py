@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 USR = os.environ['YAHOO_FOOTBALL_USER']
 PWD = os.environ['YAHOO_FOOTBALL_PASS']
-chrome = 'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
+chrome = r'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
 
 
 def parse_table(trs, td_num, roster0):
