@@ -1,3 +1,4 @@
+import csv
 import os
 from time import sleep
 
@@ -60,8 +61,10 @@ def parse_table(trs, td_num, roster0):
         a = driver.find_element_by_css_selector('a.yui3-ysplayernote-close')
         driver.execute_script("arguments[0].click();", a)
 
-        # Display
-        print(','.join([ID, name, team, position, str(roster0), *points]))
+        # Write output
+        with open(r'output.csv', 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([ID, name, team, position, roster0, *points])
 
 
 # Start browser
