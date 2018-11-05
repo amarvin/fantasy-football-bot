@@ -14,6 +14,7 @@ from selenium.common.exceptions import NoSuchElementException
 USR = os.environ['YAHOO_FOOTBALL_USER']
 PWD = os.environ['YAHOO_FOOTBALL_PASS']
 chrome = r'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
+filename = 'output'
 
 
 def parse_table(trs, td_num, roster0):
@@ -62,7 +63,7 @@ def parse_table(trs, td_num, roster0):
         driver.execute_script("arguments[0].click();", a)
 
         # Write output
-        with open(r'output.csv', 'a', newline='') as csvfile:
+        with open(filename + '.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([ID, name, team, position, roster0, *points])
 
@@ -87,6 +88,10 @@ elem.send_keys(PWD)
 elem = driver.find_element_by_id('login-signin')
 driver.execute_script("arguments[0].click();", elem)
 
+# Parse current week
+elem = driver.find_element_by_css_selector('a.flyout_trigger span.flyout-title')
+week = elem.text.split(' ')[1]
+filename += '-w' + week
 
 # Parse current players
 for i in range(3):
