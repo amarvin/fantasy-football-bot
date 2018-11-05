@@ -1,5 +1,5 @@
 import csv
-import os
+from os import environ
 from os.path import join
 from time import sleep
 
@@ -12,8 +12,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
 
-USR = os.environ['YAHOO_FOOTBALL_USER']
-PWD = os.environ['YAHOO_FOOTBALL_PASS']
+USR = environ['YAHOO_FOOTBALL_USER']
+PWD = environ['YAHOO_FOOTBALL_PASS']
 chrome = r'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
 filename = join('data', 'w')
 
