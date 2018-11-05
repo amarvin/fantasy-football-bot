@@ -3,11 +3,12 @@ from os import listdir
 from os.path import getctime, isfile, join, split
 
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
+from tabulate import tabulate
 
 
 # Settings
 weekly_points_interest_rate = 0.4
-max_dropped_players = 1
+max_dropped_players = 3
 
 # Game rules
 POSITIONS = ['QB', 'WR', 'RB', 'TE', 'W/R/T', 'K', 'DEF']
@@ -83,7 +84,7 @@ prob += lpSum(discounted_points_total[p] for p in PLAYERS)
 
 # Define constraints
 prob += lpSum(roster[p] for p in PLAYERS) <= 16
-prob += 16 - max_dropped_players <= lpSum(roster[p] for p in PLAYERS if Roster0[p] == 1)
+prob += 16 <= lpSum(roster[p] for p in PLAYERS if Roster0[p] == 1), 'max_drops'
 for p, t in PlayerTime:
     prob += roster[p] >= lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
     prob += points[p, t] == Projections[p, t] * lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
@@ -96,17 +97,28 @@ for t in TIMES:
         prob += lpSum(assign[p, t, n] for p in PLAYERS if (p, n) in PlayerPosition) <= PositionMax[n]
 
 # Solve optimization problem
+solutions_headers = ['Add', 'Drop', 'Total points', 'Discounted points']
+solutions = []
 prob.solve()
-
-# Post-process results
+assert LpStatus[prob.status] == 'Optimal'
 total_points = sum(points_total[p].varValue for p in PLAYERS)
-print('Status:', LpStatus[prob.status])
-print('Discounted points: {:.2f}'.format(value(prob.objective)))
-print('Total points: {:.2f}'.format(total_points))
-for p in PLAYERS:
-    roster0 = Roster0[p]
-    roster1 = roster[p].varValue
-    if roster0 and not roster1:
-        print('Drop:', Names[p])
-    elif not roster0 and roster1:
-        print('Add:', Names[p])
+solutions.append(['', '', total_points, value(prob.objective)])
+skip_players = []
+for i in range(max_dropped_players):
+    prob.constraints['max_drops'].constant = -15 + i
+    prob.solve()
+    assert LpStatus[prob.status] == 'Optimal'
+    for p in PLAYERS:
+        if p in skip_players:
+            continue
+        roster0 = Roster0[p]
+        roster1 = roster[p].varValue
+        if roster0 and not roster1:
+            drop = Names[p]
+            skip_players.append(p)
+        elif not roster0 and roster1:
+            add = Names[p]
+            skip_players.append(p)
+    total_points = sum(points_total[p].varValue for p in PLAYERS)
+    solutions.append([add, drop, total_points, value(prob.objective)])
+print(tabulate(solutions, solutions_headers, floatfmt='.2f'))
