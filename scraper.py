@@ -1,5 +1,6 @@
 import csv
 import os
+from os.path import join
 from time import sleep
 
 from selenium import webdriver
@@ -14,7 +15,7 @@ from selenium.common.exceptions import NoSuchElementException
 USR = os.environ['YAHOO_FOOTBALL_USER']
 PWD = os.environ['YAHOO_FOOTBALL_PASS']
 chrome = r'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
-filename = 'output'
+filename = join('data', 'w')
 
 
 def parse_table(trs, td_num, roster0):
@@ -91,7 +92,7 @@ driver.execute_script("arguments[0].click();", elem)
 # Parse current week
 elem = driver.find_element_by_css_selector('a.flyout_trigger span.flyout-title')
 week = elem.text.split(' ')[1]
-filename += '-w' + week
+filename += week
 
 # Parse current players
 for i in range(3):
