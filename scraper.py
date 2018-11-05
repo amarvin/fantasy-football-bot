@@ -87,10 +87,6 @@ elem.send_keys(PWD)
 elem = driver.find_element_by_id('login-signin')
 driver.execute_script("arguments[0].click();", elem)
 
-# Zoom out and full screen
-driver.maximize_window()
-# driver.execute_script("document.body.style.zoom='50%'")
-# sleep(1)
 
 # Parse current players
 for i in range(3):
