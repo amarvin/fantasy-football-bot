@@ -102,7 +102,10 @@ solutions = []
 prob.solve()
 assert LpStatus[prob.status] == 'Optimal'
 total_points = sum(points_total[p].varValue for p in PLAYERS)
-solutions.append(['', '', total_points, value(prob.objective)])
+discounted_points = value(prob.objective)
+solutions.append(['', '', total_points, discounted_points])
+last_total_points = total_points
+last_discounted_points = discounted_points
 skip_players = []
 for i in range(max_dropped_players):
     prob.constraints['max_drops'].constant = -15 + i
@@ -120,5 +123,8 @@ for i in range(max_dropped_players):
             add = Names[p]
             skip_players.append(p)
     total_points = sum(points_total[p].varValue for p in PLAYERS)
-    solutions.append([add, drop, total_points, value(prob.objective)])
-print(tabulate(solutions, solutions_headers, floatfmt='.2f'))
+    discounted_points = value(prob.objective)
+    solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
+    last_total_points = total_points
+    last_discounted_points = discounted_points
+print(tabulate(solutions, solutions_headers, floatfmt='+.2f'))
