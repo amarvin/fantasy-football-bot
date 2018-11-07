@@ -111,6 +111,8 @@ for i in range(max_dropped_players):
     prob.constraints['max_drops'].constant = -15 + i
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
+    drop = ''
+    add = ''
     for p in PLAYERS:
         if p in skip_players:
             continue
@@ -122,6 +124,8 @@ for i in range(max_dropped_players):
         elif not roster0 and roster1:
             add = Names[p]
             skip_players.append(p)
+    if add == '' and drop == '':
+        break
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
     solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
