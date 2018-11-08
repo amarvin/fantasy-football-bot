@@ -14,7 +14,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 USR = environ['YAHOO_FOOTBALL_USER']
 PWD = environ['YAHOO_FOOTBALL_PASS']
-chrome = r'C:\Program Files (x86)\Google\Chrome\chromedriver.exe'
 filename = join('data', 'w')
 
 
@@ -70,7 +69,7 @@ def parse_table(trs, td_num, roster0):
 
 
 # Start browser
-driver = webdriver.Chrome(executable_path=chrome)
+driver = webdriver.Chrome()
 driver.implicitly_wait(10)  # seconds
 
 # Navigate to Yahoo
