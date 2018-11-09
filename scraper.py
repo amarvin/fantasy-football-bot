@@ -36,19 +36,22 @@ def parse_table(trs, td_num, roster0):
 
         # Display projected points
         a = div1.find_element_by_xpath('.//span/a')
-        # ActionChains(driver).move_to_element(a).click(a).perform()
-        # Scroll show this row is shown
-        ActionChains(driver).move_to_element(a).perform()
         driver.execute_script("arguments[0].click();", a)
-        sleep(1)  # TODO: wait only until projection box shown
+
+        # Retry until table contains values
+        tries = 0
+        while tries < 10:
+            td2 = driver.find_element_by_css_selector("table.teamtable tbody tr td:nth-child(5)")
+            point = td2.text
+            if point != '':
+                break
+            tries += 1
+            sleep(0.1)
 
         # Parse table
         points = []
         trs2 = driver.find_elements_by_xpath("//table[@class='teamtable']/tbody/tr")
-        sleep(1)  # TODO: wait only until the table is populated
         for tr2 in trs2:
-            # Scroll until the row is shown
-            # ActionChains(driver).move_to_element(tr2).perform()
             tds2 = tr2.find_elements_by_xpath('.//td')
             point = tds2[4].text
             if point == '':
