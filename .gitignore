@@ -106,3 +106,4 @@ venv.bak/
 # custom
 /data
 chromedriver.exe
+.idea
