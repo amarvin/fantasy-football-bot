@@ -1,6 +1,6 @@
 import csv
-from os import environ
-from os.path import join
+from os import environ, makedirs
+from os.path import exists, join
 from time import sleep
 
 from selenium import webdriver
@@ -14,7 +14,10 @@ from selenium.common.exceptions import NoSuchElementException
 
 USR = environ['YAHOO_FOOTBALL_USER']
 PWD = environ['YAHOO_FOOTBALL_PASS']
-filename = join('data', 'w')
+folder = 'data'
+if not exists(folder):
+    makedirs(folder)
+filename = join(folder, 'w')
 
 
 def parse_table(trs, td_num, roster0):
