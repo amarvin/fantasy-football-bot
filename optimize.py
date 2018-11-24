@@ -45,6 +45,7 @@ with open(latest_file) as csvfile:
         p = row[0]
         PLAYERS.append(p)
         Names[p] = row[1]
+        assert row[3] in POSITIONS
         Position[p] = row[3]
         Roster0[p] = float(row[4])
         for t in TIMES:
