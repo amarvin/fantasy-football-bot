@@ -8,7 +8,6 @@ from tabulate import tabulate
 
 # Settings
 weekly_points_interest_rate = 0.4
-max_dropped_players = 3
 
 # Game rules
 POSITIONS = ['QB', 'WR', 'RB', 'TE', 'W/R/T', 'K', 'DEF']
@@ -108,8 +107,9 @@ solutions.append(['', '', total_points, discounted_points])
 last_total_points = total_points
 last_discounted_points = discounted_points
 skip_players = []
-for i in range(max_dropped_players):
-    prob.constraints['max_drops'].constant = -15 + i
+drops = 0
+while True:
+    prob.constraints['max_drops'].constant = -15 + drops
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
     drop = ''
@@ -127,6 +127,7 @@ for i in range(max_dropped_players):
             skip_players.append(p)
     if add == '' and drop == '':
         break
+    drops += 1
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
     solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
