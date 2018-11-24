@@ -109,7 +109,8 @@ last_discounted_points = discounted_points
 skip_players = []
 drops = 0
 while True:
-    prob.constraints['max_drops'].constant = -15 + drops
+    drops += 1
+    prob.constraints['max_drops'].constant = -16 + drops
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
     drop = ''
@@ -127,7 +128,6 @@ while True:
             skip_players.append(p)
     if add == '' and drop == '':
         break
-    drops += 1
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
     solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
