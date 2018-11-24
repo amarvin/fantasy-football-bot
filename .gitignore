@@ -107,3 +107,4 @@ venv.bak/
 /data
 chromedriver.exe
 .idea
+credentials.json

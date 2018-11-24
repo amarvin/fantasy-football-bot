@@ -1,5 +1,6 @@
 import csv
-from os import environ, makedirs
+import json
+from os import makedirs
 from os.path import exists, join
 from time import sleep
 
@@ -12,8 +13,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
 
-USR = environ['YAHOO_FOOTBALL_USER']
-PWD = environ['YAHOO_FOOTBALL_PASS']
+# Read Yahoo credentials from json
+with open('credentials.json') as f:
+    credentials = json.load(f)
+USR = credentials['username']
+PWD = credentials['password']
 folder = 'data'
 if not exists(folder):
     makedirs(folder)
