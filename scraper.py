@@ -92,7 +92,7 @@ def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
 
 # Start browser
 options = Options()
-# options.headless = True
+options.headless = True
 driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)  # seconds
 
