@@ -24,7 +24,7 @@ if not exists(folder):
 filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(datetime.now()))
 
 
-def parse_table(trs, td_num, roster0):
+def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
     for tr in trs:
         # Parse player info
         tds = tr.find_elements_by_xpath('.//td')
@@ -40,6 +40,13 @@ def parse_table(trs, td_num, roster0):
         href = a.get_attribute('href')
         ID = href[href.rindex('/') + 1:]
         team, position = div2.find_element_by_xpath('.//span').text.split(' - ')
+
+        # Owner
+        if roster0:
+            owner = 'self'
+        else:
+            div3 = tds[td_num + owner_col_offset].find_element_by_xpath('.//div')
+            owner = div3.text
 
         # Display projected points
         a = div1.find_element_by_xpath('.//span/a')
@@ -68,6 +75,7 @@ def parse_table(trs, td_num, roster0):
             elif point[0] == '*':
                 point = point[1:]
             points.append(point)
+
         # Close overlay
         a = driver.find_element_by_css_selector('a.yui3-ysplayernote-close')
         driver.execute_script("arguments[0].click();", a)
@@ -75,12 +83,12 @@ def parse_table(trs, td_num, roster0):
         # Write output
         with open(filename + '.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([ID, name, team, position, roster0, *points])
+            writer.writerow([ID, name, team, position, roster0, owner, *points])
 
 
 # Start browser
 options = Options()
-options.headless = True
+# options.headless = True
 driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)  # seconds
 
@@ -108,28 +116,28 @@ filename += week
 # Parse current players
 for i in range(3):
     trs = driver.find_elements_by_xpath("//table[@id='statTable{}']/tbody/tr".format(i))
-    parse_table(trs, 2, 1)
+    parse_table(trs, 2, True)
 
 # Parse available players
 URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1'
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
-parse_table(trs, 1, 0)
+parse_table(trs)
 
 # Parse next page
 URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=25'
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
-parse_table(trs, 1, 0)
+parse_table(trs)
 
 # Parse defenses
 URL = 'https://football.fantasysports.yahoo.com/f1/542214/players?&sort=PTS&sdir=1&status=A&pos=DEF&stat1=S_PN4W&jsenabled=1'
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
-parse_table(trs, 1, 0)
+parse_table(trs, owner_col_offset=2)
 
 # Close browser
 driver.quit()
