@@ -94,7 +94,7 @@ driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)  # seconds
 
 # Navigate to Yahoo
-URL = 'https://football.fantasysports.yahoo.com/f1/' + LG + '/11'
+URL = 'https://football.fantasysports.yahoo.com/f1/{}/11'.format(LG)
 driver.get(URL)
 assert 'Yahoo' in driver.title
 
@@ -120,21 +120,24 @@ for i in range(3):
     parse_table(trs, 2, True)
 
 # Parse available players
-URL = 'https://football.fantasysports.yahoo.com/f1/' + LG + '/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1'
+URL = 'https://football.fantasysports.yahoo.com/f1/' \
+    '{}/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1'.format(LG)
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
 parse_table(trs)
 
 # Parse next page
-URL = 'https://football.fantasysports.yahoo.com/f1/' + LG + '/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=25'
+URL = 'https://football.fantasysports.yahoo.com/f1/' \
+    '{}/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=25'.format(LG)
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
 parse_table(trs)
 
 # Parse defenses
-URL = 'https://football.fantasysports.yahoo.com/f1/' + LG + '/players?&sort=PTS&sdir=1&status=A&pos=DEF&stat1=S_PN4W&jsenabled=1'
+URL = 'https://football.fantasysports.yahoo.com/f1/' \
+    '{}/players?&sort=PTS&sdir=1&status=A&pos=DEF&stat1=S_PN4W&jsenabled=1'.format(LG)
 driver.get(URL)
 # Loop over table
 trs = driver.find_elements_by_xpath("//div[@id='players-table']/div[@class='players']/table/tbody/tr")
