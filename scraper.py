@@ -11,6 +11,9 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 
 
+# Start timer
+startTime = datetime.now()
+
 # Read Yahoo credentials from json
 with open('credentials.json') as f:
     credentials = json.load(f)
@@ -22,7 +25,7 @@ LG = str(credentials['league'])
 folder = 'data'
 if not exists(folder):
     makedirs(folder)
-filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(datetime.now()))
+filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(startTime))
 
 
 def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
@@ -145,3 +148,6 @@ parse_table(trs, owner_col_offset=2)
 
 # Close browser
 driver.quit()
+
+# Print runtime
+print('Total runtime: {}'.format(datetime.now() - startTime))
