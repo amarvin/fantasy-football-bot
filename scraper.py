@@ -19,7 +19,7 @@ with open('credentials.json') as f:
     credentials = json.load(f)
 USR = credentials['username']
 PWD = credentials['password']
-LG = str(credentials['league'])
+LG = credentials['league']
 
 # Create data file
 folder = 'data'
