@@ -8,6 +8,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.options import Options
 
 
 # Read Yahoo credentials from json
@@ -78,7 +79,9 @@ def parse_table(trs, td_num, roster0):
 
 
 # Start browser
-driver = webdriver.Chrome()
+options = Options()
+options.headless = True
+driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)  # seconds
 
 # Navigate to Yahoo
