@@ -28,8 +28,8 @@ if not exists(folder):
 filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(startTime))
 
 
-def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
-    for tr in trs:
+def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
+    for tr in trs2:
         # Parse player info
         tds = tr.find_elements_by_xpath('.//td')
         try:
@@ -42,7 +42,7 @@ def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
         a = div2.find_element_by_xpath('.//a')
         name = a.text
         href = a.get_attribute('href')
-        ID = href[href.rindex('/') + 1:]
+        pid = href[href.rindex('/') + 1:]
         team, position = div2.find_element_by_xpath('.//span').text.split(' - ')
 
         # Owner
@@ -87,7 +87,7 @@ def parse_table(trs, td_num=1, roster0=False, owner_col_offset=3):
         # Write output
         with open(filename + '.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([ID, name, team, position, roster0, owner, *points])
+            writer.writerow([pid, name, team, position, roster0, owner, *points])
 
 
 # Start browser
