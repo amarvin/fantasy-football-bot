@@ -1,6 +1,7 @@
 import csv
 from os import listdir
 from os.path import getctime, isfile, join, split
+import re
 
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
 from tabulate import tabulate
@@ -29,9 +30,11 @@ folder = join('.', 'data')
 files = [f for f in listdir(folder) if isfile(join(folder, f))]
 latest_file = max([join(folder, f) for f in files], key=getctime)
 latest_filename = split(latest_file)[1]
+print(latest_filename)
 
 # Pre-process data
-current_week = int(latest_filename[1:-4])
+current_week = re.findall(r'\d+', latest_filename)[-1]
+current_week = int(current_week)
 TIMES = [t for t in range(current_week, 18)]
 #  parse CSV file
 PLAYERS = []

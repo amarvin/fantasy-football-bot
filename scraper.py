@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import json
 from os import makedirs
 from os.path import exists, join
@@ -14,10 +15,12 @@ with open('credentials.json') as f:
     credentials = json.load(f)
 USR = credentials['username']
 PWD = credentials['password']
+
+# Create data file
 folder = 'data'
 if not exists(folder):
     makedirs(folder)
-filename = join(folder, 'w')
+filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(datetime.now()))
 
 
 def parse_table(trs, td_num, roster0):
