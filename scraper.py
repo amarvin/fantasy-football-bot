@@ -20,6 +20,7 @@ with open('credentials.json') as f:
 USR = credentials['username']
 PWD = credentials['password']
 LG = credentials['league']
+TM = credentials['team']
 
 # Create data file
 folder = 'data'
@@ -97,7 +98,7 @@ driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)  # seconds
 
 # Navigate to Yahoo
-URL = 'https://football.fantasysports.yahoo.com/f1/{}/11'.format(LG)
+URL = 'https://football.fantasysports.yahoo.com/f1/{}/{}'.format(LG, TM)
 driver.get(URL)
 assert 'Yahoo' in driver.title
 
