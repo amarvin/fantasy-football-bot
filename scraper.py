@@ -5,6 +5,7 @@ from os import makedirs
 from os.path import exists, join
 from time import sleep
 
+from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
@@ -59,7 +60,7 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
 
         # Retry until table contains values
         tries = 0
-        while tries < 10:
+        while tries < 20:
             td2 = driver.find_element_by_css_selector("table.teamtable > tbody > tr > td:nth-child(5)")
             point = td2.text
             if point != '':
@@ -67,12 +68,12 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
             tries += 1
             sleep(0.1)
 
-        # Parse table
+        # Parse table using beautifulsoup
         points = []
-        trs2 = driver.find_elements_by_css_selector("table.teamtable > tbody > tr")
-        for tr2 in trs2:
-            tds2 = tr2.find_elements_by_xpath('.//td')
-            point = tds2[4].text
+        soup = bs(driver.page_source, 'lxml')
+        rows = soup.select("table.teamtable > tbody > tr")
+        for row in rows:
+            point = row.find_all('td')[4].get_text()
             if point == '':
                 continue
             elif point == '-':
