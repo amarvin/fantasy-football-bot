@@ -1,8 +1,10 @@
+from ast import literal_eval
 import csv
 from datetime import datetime
 import json
 from os import makedirs
 from os.path import exists, join
+import requests
 from time import sleep
 
 from bs4 import BeautifulSoup as bs
@@ -30,6 +32,28 @@ if not exists(folder):
 filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(startTime))
 
 
+def get_projections(lg, pid):
+    # Query projected points
+    url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
+    res = requests.get(url)
+    txt = res.text
+    html = literal_eval(txt)['content'].replace(r'\/', '/')
+    soup = bs(html, 'lxml')
+    rows = soup.select("table.teamtable > tbody > tr")
+    points = []
+    for row in rows:
+        point = row.find_all('td')[4].get_text()
+        if point == '':
+            continue
+        elif point == '-':
+            point = '0'
+        elif point[0] == '*':
+            point = point[1:]
+        points.append(point)
+
+    return points
+
+
 def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
     for tr in trs2:
         # Parse player info
@@ -54,37 +78,43 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
             div3 = tds[td_num + owner_col_offset].find_element_by_xpath('.//div')
             owner = div3.text
 
-        # Display projected points
-        a = div1.find_element_by_xpath('.//span/a')
-        driver.execute_script("arguments[0].click();", a)
+        # Get projected points
+        # TODO: find integer pid for defense teams
+        if position != 'DEF':
+            # Use API
+            points = get_projections(LG, pid)
+        else:
+            # Display projected points
+            a = div1.find_element_by_xpath('.//span/a')
+            driver.execute_script("arguments[0].click();", a)
 
-        # Retry until table contains values
-        tries = 0
-        while tries < 20:
-            td2 = driver.find_element_by_css_selector("table.teamtable > tbody > tr > td:nth-child(5)")
-            point = td2.text
-            if point != '':
-                break
-            tries += 1
-            sleep(0.1)
+            # Retry until table contains values
+            tries = 0
+            while tries < 20:
+                td2 = driver.find_element_by_css_selector("table.teamtable > tbody > tr > td:nth-child(5)")
+                point = td2.text
+                if point != '':
+                    break
+                tries += 1
+                sleep(0.1)
 
-        # Parse table using beautifulsoup
-        points = []
-        soup = bs(driver.page_source, 'lxml')
-        rows = soup.select("table.teamtable > tbody > tr")
-        for row in rows:
-            point = row.find_all('td')[4].get_text()
-            if point == '':
-                continue
-            elif point == '-':
-                point = '0'
-            elif point[0] == '*':
-                point = point[1:]
-            points.append(point)
+            # Parse table using beautifulsoup
+            points = []
+            soup = bs(driver.page_source, 'lxml')
+            rows = soup.select("table.teamtable > tbody > tr")
+            for row in rows:
+                point = row.find_all('td')[4].get_text()
+                if point == '':
+                    continue
+                elif point == '-':
+                    point = '0'
+                elif point[0] == '*':
+                    point = point[1:]
+                points.append(point)
 
-        # Close overlay
-        a = driver.find_element_by_css_selector('a.yui3-ysplayernote-close')
-        driver.execute_script("arguments[0].click();", a)
+            # Close overlay
+            a = driver.find_element_by_css_selector('a.yui3-ysplayernote-close')
+            driver.execute_script("arguments[0].click();", a)
 
         # Write output
         with open(filename + '.csv', 'a', newline='') as csvfile:
