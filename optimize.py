@@ -21,7 +21,10 @@ PossiblePositions = [
     ('TE', 'TE'),
     ('TE', 'W/R/T'),
     ('K', 'K'),
-    ('DEF', 'DEF')
+    ('DEF', 'DEF'),
+    ('WR,TE', 'WR'),
+    ('WR,TE', 'TE'),
+    ('WR,TE', 'W/R/T')
 ]
 PositionMax = {'QB': 1, 'WR': 3, 'RB': 2, 'TE': 1, 'W/R/T': 1, 'K': 1, 'DEF': 1}
 
@@ -47,7 +50,6 @@ with open(latest_file) as csvfile:
         p = row[0]
         PLAYERS.append(p)
         Names[p] = row[1]
-        assert row[3] in POSITIONS
         Position[p] = row[3]
         Roster0[p] = True if row[4] == 'True' else False
         Owner[p] = row[5]
