@@ -119,28 +119,18 @@ for i in range(3):
     parse_table(trs, 2, True)
 
 # Parse available players
-URL = 'https://football.fantasysports.yahoo.com/f1/' \
-    '{}/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1'.format(LG)
-driver.get(URL)
-# Loop over table
-trs = driver.find_elements_by_css_selector("#players-table > div.players > table > tbody > tr")
-parse_table(trs)
-
-# Parse next page
-URL = 'https://football.fantasysports.yahoo.com/f1/' \
-    '{}/players?status=A&pos=O&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=25'.format(LG)
-driver.get(URL)
-# Loop over table
-trs = driver.find_elements_by_css_selector("#players-table > div.players > table > tbody > tr")
-parse_table(trs)
-
-# Parse defenses
-URL = 'https://football.fantasysports.yahoo.com/f1/' \
-    '{}/players?&sort=PTS&sdir=1&status=A&pos=DEF&stat1=S_PN4W&jsenabled=1'.format(LG)
-driver.get(URL)
-# Loop over table
-trs = driver.find_elements_by_css_selector("#players-table > div.players > table > tbody > tr")
-parse_table(trs, owner_col_offset=2)
+groups = ['O', 'K', 'DEF']
+for group in groups:
+    for i in range(3):
+        URL = 'https://football.fantasysports.yahoo.com/f1/' \
+            '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count={}'.format(LG, group, i * 25)
+        driver.get(URL)
+        # Loop over table
+        trs = driver.find_elements_by_css_selector("#players-table > div.players > table > tbody > tr")
+        if group != 'DEF':
+            parse_table(trs)
+        else:
+            parse_table(trs, owner_col_offset=2)
 
 # Close browser
 driver.quit()
