@@ -1,4 +1,3 @@
-from ast import literal_eval
 import csv
 from datetime import datetime
 import json
@@ -36,8 +35,7 @@ def get_projections(lg, pid):
     # Query projected points
     url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
     res = requests.get(url)
-    txt = res.text
-    html = literal_eval(txt)['content'].replace(r'\/', '/')
+    html = res.json()['content']
     soup = bs(html, 'lxml')
     rows = soup.select("table.teamtable > tbody > tr")
     points = []
