@@ -8,9 +8,9 @@ from time import sleep
 
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 
 
 # Start timer
