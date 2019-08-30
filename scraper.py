@@ -31,11 +31,29 @@ if not exists(folder):
 filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(startTime))
 
 
+# Requests headers
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
+}
+
+
 def get_projections(lg, pid):
     # Query projected points
     url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
-    res = requests.get(url)
-    html = res.json()['content']
+    res = requests.get(url, headers=headers)
+    for _ in range(10):
+        if res.status_code == 200:
+            break
+        # Retry query
+        print('Retrying projections for pid {}'.format(pid))
+        sleep(60)
+        res = requests.get(url, headers=headers)
+    try:
+        html = res.json()['content']
+    except json.decoder.JSONDecodeError as e:
+        print(res, res.status_code, lg, pid)
+        raise e
     soup = bs(html, 'lxml')
     rows = soup.select("table.teamtable > tbody > tr")
     points = []
