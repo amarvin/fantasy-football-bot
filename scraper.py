@@ -94,7 +94,7 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
             owner = div3.text
 
         # Get projected points
-            points = get_projections(LG, pid)
+        points = get_projections(LG, pid)
 
         # Write output
         with open(filename + '.csv', 'a', newline='') as csvfile:
