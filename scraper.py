@@ -81,7 +81,10 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
 
         # Basic playing info
         div2 = div1.find_element_by_xpath('.//div')
-        a = div2.find_element_by_xpath('.//a')
+        try:
+            a = div2.find_element_by_xpath('.//a')
+        except NoSuchElementException:
+            continue
         name = a.text
         pid = div1.find_element_by_xpath('.//span/a').get_attribute('data-ys-playerid')
         team, position = div2.find_element_by_xpath('.//span').text.split(' - ')
@@ -125,8 +128,11 @@ elem = driver.find_element_by_id('login-signin')
 driver.execute_script("arguments[0].click();", elem)
 
 # Parse current week
-elem = driver.find_element_by_css_selector('a.flyout_trigger > span.flyout-title')
-week = elem.text.split(' ')[1]
+try:
+    elem = driver.find_element_by_css_selector('a.flyout_trigger > span.flyout-title')
+    week = elem.text.split(' ')[1]
+except NoSuchElementException:
+    week = "0"
 filename += week
 
 # Parse current players
