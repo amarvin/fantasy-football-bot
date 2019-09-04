@@ -148,7 +148,8 @@ for i in range(3):
 # Parse available players
 groups = ['O', 'K', 'DEF']
 for group in groups:
-    for i in range(3):
+    for i in range(10):
+        # Request next 25 best players
         URL = 'https://football.fantasysports.yahoo.com/f1/' \
             '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count={}'.format(LG, group, i * 25)
         driver.get(URL)
