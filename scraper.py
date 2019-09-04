@@ -153,12 +153,18 @@ for group in groups:
         URL = 'https://football.fantasysports.yahoo.com/f1/' \
             '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count={}'.format(LG, group, i * 25)
         driver.get(URL)
-        # Loop over table
-        trs = driver.find_elements_by_css_selector("#players-table > div.players > table > tbody > tr")
-        if group != 'DEF':
-            parse_table(trs)
-        else:
-            parse_table(trs, owner_col_offset=2)
+
+        # Find the Owner header
+        ths = driver.find_elements_by_css_selector('#players-table > div.players > table > thead > tr.Last > th')
+        owner_col_offset = None
+        for i_th, th in enumerate(ths):
+            if th.text == 'Owner':
+                owner_col_offset = i_th - 1
+                break
+
+        # Parse rows of table
+        trs = driver.find_elements_by_css_selector('#players-table > div.players > table > tbody > tr')
+        any_players = parse_table(trs, owner_col_offset=owner_col_offset)
 
         # If no players found, skip searching for this position
         if not any_players:
