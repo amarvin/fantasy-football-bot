@@ -137,7 +137,7 @@ try:
     elem = driver.find_element_by_css_selector('a.flyout_trigger > span.flyout-title')
     week = elem.text.split(' ')[1]
 except NoSuchElementException:
-    week = "0"
+    week = '0'
 filename += week
 
 # Parse current players
