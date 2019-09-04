@@ -71,6 +71,7 @@ def get_projections(lg, pid):
 
 
 def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
+    any_players = False
     for tr in trs2:
         # Parse player info
         tds = tr.find_elements_by_xpath('.//td')
@@ -103,6 +104,10 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
         with open(filename + '.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([pid, name, team, position, roster0, owner, *points])
+
+        any_players = True
+
+    return any_players
 
 
 # Start browser
@@ -153,6 +158,10 @@ for group in groups:
             parse_table(trs)
         else:
             parse_table(trs, owner_col_offset=2)
+
+        # If no players found, skip searching for this position
+        if not any_players:
+            break
 
 # Close browser
 driver.quit()
