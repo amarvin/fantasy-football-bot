@@ -11,6 +11,7 @@ from tabulate import tabulate
 weekly_points_interest_rate = 0.4
 
 # Game rules
+MAX_PLAYERS = 14
 POSITIONS = ['QB', 'WR', 'RB', 'TE', 'W/R/T', 'K', 'DEF']
 PossiblePositions = [
     ('QB', 'QB'),
@@ -89,8 +90,8 @@ discounted_points_total = LpVariable.dicts('discounted points total', PLAYERS, l
 prob += lpSum(discounted_points_total[p] for p in PLAYERS)
 
 # Define constraints
-prob += lpSum(roster[p] for p in PLAYERS) <= 16
-prob += 16 <= lpSum(roster[p] for p in PLAYERS if Roster0[p]), 'max_drops'
+prob += lpSum(roster[p] for p in PLAYERS) <= MAX_PLAYERS
+prob += MAX_PLAYERS <= lpSum(roster[p] for p in PLAYERS if Roster0[p]), 'max_drops'
 prob += 0 == lpSum(roster[p] for p in PLAYERS
                    if not Roster0[p] and Owner[p] != 'FA'), 'only_add_free_agents'
 for p, t in PlayerTime:
@@ -119,7 +120,7 @@ last_discounted_points = discounted_points
 skip_players = []
 drops = 0
 while True:
-    prob.constraints['max_drops'].constant = -15 + drops
+    prob.constraints['max_drops'].constant = -MAX_PLAYERS + 1 + drops
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
     drop = ''
@@ -149,7 +150,7 @@ while True:
 # Re-solve for adding each waiver claim
 del prob.constraints['only_add_free_agents']
 while True:
-    prob.constraints['max_drops'].constant = -15 + drops
+    prob.constraints['max_drops'].constant = -MAX_PLAYERS + 1 + drops
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
     drop = ''
