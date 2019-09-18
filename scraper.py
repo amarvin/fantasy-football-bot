@@ -74,27 +74,20 @@ def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
     any_players = False
     for tr in trs2:
         # Parse player info
-        tds = tr.find_elements_by_xpath('.//td')
+        tds = tr.find_elements_by_css_selector('td')
+        td = tds[td_num]
         try:
-            div1 = tds[td_num].find_element_by_xpath('.//div/div')
+            name = td.find_element_by_css_selector('div.ysf-player-name a').text
+            team, position = td.find_element_by_css_selector('div.ysf-player-name span').text.split(' - ')
+            pid = td.find_element_by_css_selector('span.player-status a').get_attribute('data-ys-playerid')
         except NoSuchElementException:
             continue
-
-        # Basic playing info
-        div2 = div1.find_element_by_xpath('.//div')
-        try:
-            a = div2.find_element_by_xpath('.//a')
-        except NoSuchElementException:
-            continue
-        name = a.text
-        pid = div1.find_element_by_xpath('.//span/a').get_attribute('data-ys-playerid')
-        team, position = div2.find_element_by_xpath('.//span').text.split(' - ')
 
         # Owner
         if roster0:
             owner = 'self'
         else:
-            div3 = tds[td_num + owner_col_offset].find_element_by_xpath('.//div')
+            div3 = tds[td_num + owner_col_offset].find_element_by_css_selector('div')
             owner = div3.text
 
         # Get projected points
