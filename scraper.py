@@ -136,9 +136,19 @@ except NoSuchElementException:
 filename += week
 
 # Parse current players
-for i in range(3):
-    trs = driver.find_elements_by_css_selector("#statTable{} > tbody > tr".format(i))
-    parse_table(trs, 2, True)
+tables = driver.find_elements_by_css_selector('table[id^=statTable]')
+for table in tables:
+    # Find the player info header
+    ths = table.find_elements_by_css_selector('thead > tr.Last > th')
+    td_num = None
+    for i_th, th in enumerate(ths):
+        if th.text in ['Offense', 'Kickers', 'Defense/Special Teams']:
+            td_num = i_th
+            break
+
+    # Parse the table rows
+    trs = table.find_elements_by_css_selector('tbody > tr')
+    parse_table(trs, td_num, True)
 
 # Parse available players
 groups = ['O', 'K', 'DEF']
