@@ -115,15 +115,17 @@ driver.get(URL)
 assert 'Yahoo' in driver.title
 
 # Login
-elem = driver.find_element_by_id('login-username')
-elem.send_keys(USR)
-elem = driver.find_element_by_id('login-signin')
-driver.execute_script("arguments[0].click();", elem)
-elem.send_keys(Keys.RETURN)
-elem = driver.find_element_by_id('login-passwd')
-elem.send_keys(PWD)
-elem = driver.find_element_by_id('login-signin')
-driver.execute_script("arguments[0].click();", elem)
+try:
+    driver.find_element_by_id('login-username').send_keys(USR)
+    elem = driver.find_element_by_id('login-signin')
+    driver.execute_script("arguments[0].click();", elem)
+    elem.send_keys(Keys.RETURN)
+    driver.find_element_by_id('login-passwd').send_keys(PWD)
+    elem = driver.find_element_by_id('login-signin')
+    driver.execute_script("arguments[0].click();", elem)
+except NoSuchElementException:
+    # Login fields not found. Might be a public league
+    pass
 
 # Parse current week
 try:
