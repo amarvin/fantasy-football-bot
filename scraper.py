@@ -151,29 +151,28 @@ for table in tables:
     parse_table(trs, td_num, True)
 
 # Parse available players
-groups = ['O', 'K', 'DEF']
+groups = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF']
 for group in groups:
-    for i in range(10):
-        # Request next 25 best players
-        URL = 'https://football.fantasysports.yahoo.com/f1/' \
-            '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count={}'.format(LG, group, i * 25)
-        driver.get(URL)
+    # Request top 25 players
+    URL = 'https://football.fantasysports.yahoo.com/f1/' \
+        '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=0'.format(LG, group)
+    driver.get(URL)
 
-        # Find the Owner header
-        ths = driver.find_elements_by_css_selector('#players-table > div.players > table > thead > tr.Last > th')
-        owner_col_offset = None
-        for i_th, th in enumerate(ths):
-            if th.text == 'Owner':
-                owner_col_offset = i_th - 1
-                break
-
-        # Parse rows of table
-        trs = driver.find_elements_by_css_selector('#players-table > div.players > table > tbody > tr')
-        any_players = parse_table(trs, owner_col_offset=owner_col_offset)
-
-        # If no players found, skip searching for this position
-        if not any_players:
+    # Find the Owner header
+    ths = driver.find_elements_by_css_selector('#players-table > div.players > table > thead > tr.Last > th')
+    owner_col_offset = None
+    for i_th, th in enumerate(ths):
+        if th.text == 'Owner':
+            owner_col_offset = i_th - 1
             break
+
+    # Parse rows of table
+    trs = driver.find_elements_by_css_selector('#players-table > div.players > table > tbody > tr')
+    any_players = parse_table(trs, owner_col_offset=owner_col_offset)
+
+    # If no players found, skip searching for this position
+    if not any_players:
+        break
 
 # Close browser
 driver.quit()
