@@ -140,6 +140,11 @@ def scrape(credentials):
         week = '0'
     filename += week
 
+    # Write header row
+    with open(filename + '.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['ID', 'Name', 'Team', 'Position', 'Roster0', 'Owner', *['W{}'.format(week + 1) for week in range(17)]])
+
     # Parse current players
     tables = driver.find_elements_by_css_selector('table[id^=statTable]')
     for table in tables:

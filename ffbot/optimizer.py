@@ -51,7 +51,9 @@ def optimize():
     Owner = dict()
     Projections = dict()
     with open(latest_file) as csvfile:
-        for row in csv.reader(csvfile):
+        reader = csv.reader(csvfile)
+        next(reader, None)  # skip header
+        for row in reader:
             p = row[0]
             PLAYERS.append(p)
             Names[p] = row[1]
