@@ -110,6 +110,7 @@ def scrape(credentials):
     # Start browser
     options = Options()
     options.headless = True
+    options.add_argument('log-level=3')
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(10)  # seconds
 
