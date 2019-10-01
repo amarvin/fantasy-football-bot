@@ -1,191 +1,149 @@
-import csv
 from datetime import datetime
-import json
 from os import makedirs
 from os.path import exists, join
-import requests
 from time import sleep
 
 from bs4 import BeautifulSoup as bs
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
+import numpy as np
+import requests
+import pandas as pd
 
 
-def scrape(credentials):
+# A public league for current week and player IDs
+LG = 39345
+
+
+def scrape(lg):
     '''Scrape data
 
-    :param credentials: login credentials dictionary
+    :param lg: league ID
     '''
-
-    # Unpack credentials
-    USR = credentials['username']
-    PWD = credentials['password']
-    LG = credentials['league']
-    TM = credentials['team']
 
     # Start timer
     startTime = datetime.now()
 
-    # Create data file
+    # Create data folder
     folder = 'data'
     if not exists(folder):
         makedirs(folder)
-    filename = join(folder, '{:%Y-%m-%d %H%M} week '.format(startTime))
 
-
-    # Requests headers
-    headers = {
+    # Create session
+    s = requests.Session()
+    s.headers = {
         'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
     }
 
+    # Parse current week from a public league
+    url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(LG)
+    r = s.get(url)
+    assert r.status_code == 200
+    soup = bs(r.text, 'lxml')
+    span = soup.select_one('a.flyout_trigger span.flyout-title')
+    week = span.text.split()[1]
+    filename = join(folder, '{:%Y-%m-%d %H%M} week {}.csv'.format(startTime, week))
 
-    def get_projections(lg, pid):
-        # Query projected points
-        url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
-        res = requests.get(url, headers=headers)
-        for _ in range(10):
-            if res.status_code == 200:
-                break
-            # Retry query
-            print('Retrying projections for pid {}'.format(pid))
-            sleep(60)
-            res = requests.get(url, headers=headers)
-        try:
-            html = res.json()['content']
-        except json.decoder.JSONDecodeError as e:
-            print(res, res.status_code, lg, pid)
-            raise e
-        soup = bs(html, 'lxml')
-        rows = soup.select("table.teamtable > tbody > tr")
-        points = []
-        for row in rows:
-            point = row.find_all('td')[4].get_text()
-            if point == '':
-                continue
-            elif point == '-':
-                point = '0'
-            elif point[0] == '*':
-                point = point[1:]
-            points.append(point)
-
-        return points
-
-
-    def parse_table(trs2, td_num=1, roster0=False, owner_col_offset=3):
-        any_players = False
-        for tr in trs2:
-            # Parse player info
-            tds = tr.find_elements_by_css_selector('td')
-            td = tds[td_num]
-            try:
-                name = td.find_element_by_css_selector('div.ysf-player-name a').text
-                team, position = td.find_element_by_css_selector('div.ysf-player-name span').text.split(' - ')
-                pid = td.find_element_by_css_selector('span.player-status a').get_attribute('data-ys-playerid')
-            except NoSuchElementException:
-                continue
-
-            # Owner
-            if roster0:
-                owner = 'self'
-            else:
-                div3 = tds[td_num + owner_col_offset].find_element_by_css_selector('div')
-                owner = div3.text
-
-            # Get projected points
-            points = get_projections(LG, pid)
-
-            # Write output
-            with open(filename + '.csv', 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow([pid, name, team, position, roster0, owner, *points])
-
-            any_players = True
-
-        return any_players
-
-
-    # Start browser
-    options = Options()
-    options.headless = True
-    options.add_argument('log-level=3')
-    driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(10)  # seconds
-
-    # Navigate to Yahoo
-    URL = 'https://football.fantasysports.yahoo.com/f1/{}/{}'.format(LG, TM)
-    driver.get(URL)
-    assert 'Yahoo' in driver.title
-
-    # Login
-    try:
-        driver.find_element_by_id('login-username').send_keys(USR)
-        elem = driver.find_element_by_id('login-signin')
-        driver.execute_script("arguments[0].click();", elem)
-        elem.send_keys(Keys.RETURN)
-        driver.find_element_by_id('login-passwd').send_keys(PWD)
-        elem = driver.find_element_by_id('login-signin')
-        driver.execute_script("arguments[0].click();", elem)
-    except NoSuchElementException:
-        # Login fields not found. Might be a public league
-        pass
-
-    # Parse current week
-    try:
-        elem = driver.find_element_by_css_selector('a.flyout_trigger > span.flyout-title')
-        week = elem.text.split(' ')[1]
-    except NoSuchElementException:
-        week = '0'
-    filename += week
-
-    # Write header row
-    with open(filename + '.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['ID', 'Name', 'Team', 'Position', 'Roster0', 'Owner', *['W{}'.format(week + 1) for week in range(17)]])
-
-    # Parse current players
-    tables = driver.find_elements_by_css_selector('table[id^=statTable]')
-    for table in tables:
-        # Find the player info header
-        ths = table.find_elements_by_css_selector('thead > tr.Last > th')
-        td_num = None
-        for i_th, th in enumerate(ths):
-            if th.text in ['Offense', 'Kickers', 'Defense/Special Teams']:
-                td_num = i_th
-                break
-
-        # Parse the table rows
-        trs = table.find_elements_by_css_selector('tbody > tr')
-        parse_table(trs, td_num, True)
-
-    # Parse available players
+    # Scrape player IDs from a public league
+    IDs = set()
     groups = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF']
     for group in groups:
-        # Request top 25 players
-        URL = 'https://football.fantasysports.yahoo.com/f1/' \
-            '{}/players?status=A&pos={}&cut_type=9&stat1=S_PN4W&myteam=0&sort=PTS&sdir=1&count=0'.format(LG, group)
-        driver.get(URL)
+        # Taken players
+        i = 0
+        while True:
+            # Request next 25 best players
+            r = s.get(
+                'https://football.fantasysports.yahoo.com/f1/{}/players'.format(LG),
+                params=dict(
+                    count=i * 25,
+                    pos=group,
+                    status='T',
+                ),
+            )
+            i += 1
+            assert r.status_code == 200
+            soup = bs(r.text, 'lxml')
+            table = soup.select_one('#players-table table')
+            rows = table.select('tbody tr')
+            if not rows: break
+            for row in rows:
+                ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
+                IDs.add(ID)
 
-        # Find the Owner header
-        ths = driver.find_elements_by_css_selector('#players-table > div.players > table > thead > tr.Last > th')
-        owner_col_offset = None
-        for i_th, th in enumerate(ths):
-            if th.text == 'Owner':
-                owner_col_offset = i_th - 1
-                break
+        # Available players (only top 25)
+        r = s.get(
+            'https://football.fantasysports.yahoo.com/f1/{}/players'.format(LG),
+            params=dict(
+                pos=group,
+                sort='PTS',  # sort by points
+                stat1='S_PN4W',  # next 4 weeks (proj)
+                status='A',
+            ),
+        )
+        assert r.status_code == 200
+        soup = bs(r.text, 'lxml')
+        table = soup.select_one('#players-table table')
+        rows = table.select('tbody tr')
+        for row in rows:
+            ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
+            IDs.add(ID)
+    
+    # Create dataframe
+    df = pd.DataFrame(IDs, columns=['ID'])
 
-        # Parse rows of table
-        trs = driver.find_elements_by_css_selector('#players-table > div.players > table > tbody > tr')
-        any_players = parse_table(trs, owner_col_offset=owner_col_offset)
+    # Scrape projections
+    def get_projections(row):
+        pid = row['ID']
+        url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
+        r = s.get(url)
+        for _ in range(4):
+            if r.status_code == 200: break
+            # Retry query
+            print('Retrying projections for pid {}'.format(pid))
+            sleep(61)
+            r = s.get(url)
+        html = r.json()['content']
+        soup = bs(html, 'lxml')
+        playerinfo = soup.select_one('.playerinfo')
+        row['Name'] = playerinfo.select_one('.name').text
+        #row['Team'] = playerinfo.select_one('.player-team-name').text
+        row['Position'] = playerinfo.select_one('dd.pos').text[:-1]
+        row['Owner'] = playerinfo.select_one('dd.owner').text[:-1]
 
-        # If no players found, skip searching for this position
-        if not any_players:
-            break
+        # Owner ID
+        a = playerinfo.select_one('dd.owner a')
+        if a:
+            row['Owner ID'] = a['href'].split('/')[-1]
+        else:
+            row['Owner ID'] = np.nan
 
-    # Close browser
-    driver.quit()
+        row['% Owned'] = playerinfo.select_one('dd.owned').text.split()[0]
+
+        # Weekly projections
+        df2 = pd.read_html(html)[0]
+        for _, row2 in df2.iterrows():
+            week = 'Week {}'.format(row2['Week'])
+            points = row2['Fan Pts']
+            if points[0] == '*':
+                # Game hasn't occured yet
+                row[week] = float(points[1:])
+                #row[week + ' projection'] = float(points[1:])
+                #row[week + ' actual'] = np.nan
+            elif points == '-':
+                # Bye week
+                row[week] = 0
+                #row[week + ' projection'] = 0
+                #row[week + ' actual'] = 0
+            else:
+                # Game completed
+                row[week] = float(points)
+                #row[week + ' projection'] = np.nan
+                #row[week + ' actual'] = float(points)
+
+        return row
+    df = df.apply(get_projections, axis=1)
 
     # Print runtime
     print('Total runtime: {}'.format(datetime.now() - startTime))
+
+    # Save data
+    df.to_csv(filename, index=False)

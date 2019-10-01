@@ -3,11 +3,13 @@ from os import listdir
 from os.path import getctime, isfile, join, split
 import re
 
+import numpy as np
+import pandas as pd
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
 from tabulate import tabulate
 
 
-def optimize():
+def optimize(team):
     '''Optimize player pick-ups from free agents and waivers
     '''
 
@@ -44,25 +46,30 @@ def optimize():
     current_week = int(current_week)
     TIMES = [t for t in range(current_week, 18)]
     #  parse CSV file
+    df = pd.read_csv(latest_file)
     PLAYERS = []
     Names = dict()
     Position = dict()
     Roster0 = dict()
     Owner = dict()
+    FreeAgent = dict()
+    Available = dict()
     Projections = dict()
-    with open(latest_file) as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader, None)  # skip header
-        for row in reader:
-            p = row[0]
-            PLAYERS.append(p)
-            Names[p] = row[1]
-            Position[p] = row[3]
-            Roster0[p] = True if row[4] == 'True' else False
-            Owner[p] = row[5]
-            for t in TIMES:
-                Projections[p, t] = float(row[5 + t])
+    for _, row in df.iterrows():
+        p = row['ID']
+        PLAYERS.append(p)
+        Names[p] = row['Name']
+        Position[p] = row['Position']
+        Roster0[p] = True if row['Owner ID'] == team else False
+        owner = row['Owner']
+        Owner[p] = owner
+        FreeAgent[p] = True if np.isnan(row['Owner ID']) and owner == 'Free Agent' else False
+        Available[p] = True if np.isnan(row['Owner ID']) else False
+        for t in TIMES:
+            Projections[p, t] = float(row['Week {}'.format(t)])
     #  create other parameters
+    n_roster0 = sum(1 for p in PLAYERS if Roster0[p])
+    n_roster0 = min(n_roster0, MAX_PLAYERS)
     Discounts = {
         t: 1 / (1 + weekly_points_interest_rate) ** t_n
         for t_n, t in enumerate(TIMES)
@@ -88,18 +95,17 @@ def optimize():
     # Define decision variables
     roster = LpVariable.dicts('roster', PLAYERS, cat=LpBinary)
     assign = LpVariable.dicts('assign', PlayerTimePosition, cat=LpBinary)
-    points = LpVariable.dicts('points', PlayerTime, lowBound=0, cat=LpContinuous)
-    points_total = LpVariable.dicts('points total', PLAYERS, lowBound=0, cat=LpContinuous)
-    discounted_points_total = LpVariable.dicts('discounted points total', PLAYERS, lowBound=0, cat=LpContinuous)
+    points = LpVariable.dicts('points', PlayerTime, cat=LpContinuous)
+    points_total = LpVariable.dicts('points total', PLAYERS, cat=LpContinuous)
+    discounted_points_total = LpVariable.dicts('discounted points total', PLAYERS, cat=LpContinuous)
 
     # Define objective function
     prob += lpSum(discounted_points_total[p] for p in PLAYERS)
 
     # Define constraints
     prob += lpSum(roster[p] for p in PLAYERS) <= MAX_PLAYERS
-    prob += MAX_PLAYERS <= lpSum(roster[p] for p in PLAYERS if Roster0[p]), 'max_drops'
-    prob += 0 == lpSum(roster[p] for p in PLAYERS
-                    if not Roster0[p] and Owner[p] != 'FA'), 'only_add_free_agents'
+    prob += n_roster0 <= lpSum(roster[p] for p in PLAYERS if Roster0[p]), 'max_drops'
+    prob += 0 == lpSum(roster[p] for p in PLAYERS if not Roster0[p] and not FreeAgent[p]), 'only_add_free_agents'
     for p, t in PlayerTime:
         prob += roster[p] >= lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
         prob += points[p, t] == Projections[p, t] * lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
@@ -126,7 +132,7 @@ def optimize():
     skip_players = []
     drops = 0
     while True:
-        prob.constraints['max_drops'].constant = -MAX_PLAYERS + 1 + drops
+        prob.constraints['max_drops'].constant = -n_roster0 + 1 + drops
         prob.solve()
         assert LpStatus[prob.status] == 'Optimal'
         drop = ''
@@ -155,8 +161,9 @@ def optimize():
 
     # Re-solve for adding each waiver claim
     del prob.constraints['only_add_free_agents']
+    prob += 0 == lpSum(roster[p] for p in PLAYERS if not Roster0[p] and not Available[p]), 'only_add_available'
     while True:
-        prob.constraints['max_drops'].constant = -MAX_PLAYERS + 1 + drops
+        prob.constraints['max_drops'].constant = -n_roster0 + 1 + drops
         prob.solve()
         assert LpStatus[prob.status] == 'Optimal'
         drop = ''

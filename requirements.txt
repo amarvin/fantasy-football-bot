@@ -1,5 +1,5 @@
 beautifulsoup4
+pandas
 pulp
 requests
-selenium
 tabulate

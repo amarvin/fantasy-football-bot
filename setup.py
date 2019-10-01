@@ -31,8 +31,8 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'pulp',
+        'pandas',
         'requests',
-        'selenium',
         'tabulate',
     ],
 )
