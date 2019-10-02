@@ -39,7 +39,7 @@ def scrape(lg):
     r = s.get(url)
     assert r.status_code == 200
     soup = bs(r.text, 'lxml')
-    span = soup.select_one('a.flyout_trigger span.flyout-title')
+    span = soup.select_one('li.Navitem.current a.Navtarget')
     week = span.text.split()[1]
     filename = join(folder, '{:%Y-%m-%d %H%M} week {}.csv'.format(startTime, week))
 
