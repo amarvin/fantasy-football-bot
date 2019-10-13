@@ -100,6 +100,13 @@ def scrape(lg):
         else:
             row['Owner ID'] = np.nan
 
+        # Status
+        status = playerinfo.select_one('.status')
+        if status:
+            row['Status'] = status.text
+        else:
+            row['Status'] = np.nan
+
         row['% Owned'] = playerinfo.select_one('dd.owned').text.split()[0]
 
         # Weekly projections
