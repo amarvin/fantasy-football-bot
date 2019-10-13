@@ -1,6 +1,4 @@
 from datetime import datetime
-from os import makedirs
-from os.path import exists, join
 from time import sleep
 
 from bs4 import BeautifulSoup as bs
@@ -22,26 +20,12 @@ def scrape(lg):
     # Start timer
     startTime = datetime.now()
 
-    # Create data folder
-    folder = 'data'
-    if not exists(folder):
-        makedirs(folder)
-
     # Create session
     s = requests.Session()
     s.headers = {
         'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
     }
-
-    # Parse current week from a public league
-    url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(LG)
-    r = s.get(url)
-    assert r.status_code == 200
-    soup = bs(r.text, 'lxml')
-    span = soup.select_one('li.Navitem.current a.Navtarget')
-    week = span.text.split()[1]
-    filename = join(folder, '{:%Y-%m-%d %H%M} week {}.csv'.format(startTime, week))
 
     # Scrape player IDs from a public league
     IDs = set()
@@ -142,8 +126,28 @@ def scrape(lg):
         return row
     df = df.apply(get_projections, axis=1)
 
-    # Print runtime
     print('Total runtime: {}'.format(datetime.now() - startTime))
+    return df
 
-    # Save data
-    df.to_csv(filename, index=False)
+
+def current_week():
+    '''Current season week
+    '''
+
+    # Create session
+    s = requests.Session()
+    s.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
+    }
+
+    # Parse current week from a public league
+    url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(LG)
+    r = s.get(url)
+    assert r.status_code == 200
+    soup = bs(r.text, 'lxml')
+    span = soup.select_one('li.Navitem.current a.Navtarget')
+    week = span.text.split()[1]
+    week = int(week)
+
+    return week

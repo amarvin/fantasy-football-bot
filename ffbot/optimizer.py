@@ -1,15 +1,9 @@
-import csv
-from os import listdir
-from os.path import getctime, isfile, join, split
-import re
-
 import numpy as np
-import pandas as pd
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
 from tabulate import tabulate
 
 
-def optimize(team):
+def optimize(df, week, team):
     '''Optimize player pick-ups from free agents and waivers
     '''
 
@@ -35,18 +29,8 @@ def optimize(team):
     ]
     PositionMax = {'QB': 1, 'WR': 3, 'RB': 2, 'TE': 1, 'W/R/T': 1, 'K': 1, 'DEF': 1}
 
-    # Find latest csv file
-    folder = join('.', 'data')
-    files = [f for f in listdir(folder) if isfile(join(folder, f))]
-    latest_file = max([join(folder, f) for f in files], key=getctime)
-    latest_filename = split(latest_file)[1]
-
     # Pre-process data
-    current_week = re.findall(r'\d+', latest_filename)[-1]
-    current_week = int(current_week)
-    TIMES = [t for t in range(current_week, 18)]
-    #  parse CSV file
-    df = pd.read_csv(latest_file)
+    TIMES = [t for t in range(week, 18)]
     PLAYERS = []
     Names = dict()
     Position = dict()
