@@ -96,7 +96,7 @@ def scrape(lg):
         # Owner ID
         a = playerinfo.select_one('dd.owner a')
         if a:
-            row['Owner ID'] = a['href'].split('/')[-1]
+            row['Owner ID'] = int(a['href'].split('/')[-1])
         else:
             row['Owner ID'] = np.nan
 

@@ -1,4 +1,5 @@
-import pandas as pd
+import math
+
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
 from tabulate import tabulate
 
@@ -44,11 +45,12 @@ def optimize(df, week, team):
         PLAYERS.append(p)
         Names[p] = row['Name']
         Position[p] = row['Position']
-        Roster0[p] = True if row['Owner ID'] == team else False
+        owner_id = row['Owner ID']
+        Roster0[p] = owner_id == team
         owner = row['Owner']
         Owner[p] = owner
-        FreeAgent[p] = True if pd.isnull(row['Owner ID']) and owner == 'Free Agent' else False
-        Available[p] = True if pd.isnull(row['Owner ID']) else False
+        FreeAgent[p] = math.isnan(owner_id) and owner == 'Free Agent'
+        Available[p] = math.isnan(owner_id)
         for t in TIMES:
             Projections[p, t] = float(row['Week {}'.format(t)])
     #  create other parameters
