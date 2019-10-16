@@ -4,11 +4,29 @@ from time import sleep
 from bs4 import BeautifulSoup as bs
 import numpy as np
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import pandas as pd
 
 
 # A public league for current week and player IDs
 LG = 39345
+
+# Create session
+s = requests.Session()
+s.headers = {
+    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
+}
+#  add retry loop
+retry = Retry(
+    total=5,
+    backoff_factor=0.51,
+    status_forcelist=[500, 502, 503, 504, 999]
+)
+adapter = HTTPAdapter(max_retries=retry)
+s.mount('http://', adapter)
+s.mount('https://', adapter)
 
 
 def scrape(lg):
@@ -19,13 +37,6 @@ def scrape(lg):
 
     # Start timer
     startTime = datetime.now()
-
-    # Create session
-    s = requests.Session()
-    s.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
-    }
 
     # Scrape player IDs from a public league
     IDs = set()
@@ -140,13 +151,6 @@ def scrape(lg):
 def current_week():
     '''Current season week
     '''
-
-    # Create session
-    s = requests.Session()
-    s.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
-    }
 
     # Parse current week from a public league
     url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(LG)
