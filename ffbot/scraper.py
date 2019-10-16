@@ -63,6 +63,7 @@ def scrape(lg):
             for row in rows:
                 ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
                 IDs.add(ID)
+        print('Scraped all taken {}'.format(group))
 
         # Available players (only top 25)
         r = s.get(
@@ -81,11 +82,13 @@ def scrape(lg):
         for row in rows:
             ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
             IDs.add(ID)
-    
+        print('Scraped top 25 free {}'.format(group))
+
     # Create dataframe
     df = pd.DataFrame(IDs, columns=['ID'])
 
     # Scrape projections
+    print('Scraping weekly forecasts...')
     def get_projections(row):
         pid = row['ID']
         url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
