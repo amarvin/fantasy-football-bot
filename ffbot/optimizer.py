@@ -14,7 +14,6 @@ def optimize(df, week, team, positions):
 
     # Game rules
     positions = [x.strip() for x in positions.split(',')]
-    MAX_PLAYERS = len(positions) - positions.count('IR')
     PossiblePositions = [
         ('QB', 'QB'),
         ('WR', 'WR'),
@@ -30,35 +29,34 @@ def optimize(df, week, team, positions):
         ('WR,TE', 'W/R/T')
     ]
     PositionMax = Counter(positions)
-    del PositionMax['BN']
     POSITIONS = PositionMax.keys()
 
     # Pre-process data
     TIMES = [t for t in range(week, 18)]
-    PLAYERS = []
+    PLAYERS = set()
     Names = dict()
     Position = dict()
     Roster0 = dict()
     Owner = dict()
+    Status = dict()
     FreeAgent = dict()
     Available = dict()
     Projections = dict()
     for _, row in df.iterrows():
         p = row['ID']
-        PLAYERS.append(p)
+        PLAYERS.add(p)
         Names[p] = row['Name']
         Position[p] = row['Position']
         owner_id = row['Owner ID']
         Roster0[p] = owner_id == team
         owner = row['Owner']
         Owner[p] = owner
+        Status[p] = row['Status']
         FreeAgent[p] = math.isnan(owner_id) and owner == 'Free Agent'
         Available[p] = math.isnan(owner_id)
         for t in TIMES:
             Projections[p, t] = float(row['Week {}'.format(t)])
     #  create other parameters
-    n_roster0 = sum(1 for p in PLAYERS if Roster0[p])
-    n_roster0 = min(n_roster0, MAX_PLAYERS)
     Discounts = {
         t: 1 / (1 + weekly_points_interest_rate) ** t_n
         for t_n, t in enumerate(TIMES)
@@ -70,6 +68,12 @@ def optimize(df, week, team, positions):
         for n in POSITIONS
         if (Position[p], n) in PossiblePositions
     ]
+    for p in PLAYERS:
+        # All players take bench position
+        PlayerPosition.append((p, 'BN'))
+        # All injured players can take IR position
+        if Status[p] in ['O', 'IR']:
+            PlayerPosition.append((p, 'IR'))
     PlayerTimePosition = [
         (p, t, n)
         for p in PLAYERS
@@ -83,6 +87,8 @@ def optimize(df, week, team, positions):
 
     # Define decision variables
     roster = LpVariable.dicts('roster', PLAYERS, cat=LpBinary)
+    add = LpVariable.dicts('add', PLAYERS, cat=LpBinary)
+    drop = LpVariable.dicts('drop', PLAYERS, cat=LpBinary)
     assign = LpVariable.dicts('assign', PlayerTimePosition, cat=LpBinary)
     points = LpVariable.dicts('points', PlayerTime, cat=LpContinuous)
     points_total = LpVariable.dicts('points total', PLAYERS, cat=LpContinuous)
@@ -92,14 +98,18 @@ def optimize(df, week, team, positions):
     prob += lpSum(discounted_points_total[p] for p in PLAYERS)
 
     # Define constraints
-    prob += lpSum(roster[p] for p in PLAYERS) <= MAX_PLAYERS
-    prob += n_roster0 <= lpSum(roster[p] for p in PLAYERS if Roster0[p]), 'max_drops'
-    prob += 0 == lpSum(roster[p] for p in PLAYERS if not Roster0[p] and not FreeAgent[p]), 'only_add_free_agents'
+    prob += 0 >= lpSum(drop[p] for p in PLAYERS), 'max_drops'
+    prob += 0 == lpSum(add[p] for p in PLAYERS if not FreeAgent[p]), 'only_add_free_agents'
     for p, t in PlayerTime:
-        prob += roster[p] >= lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
-        prob += points[p, t] == Projections[p, t] * lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
+        prob += roster[p] == lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
+        prob += points[p, t] == Projections[p, t] * lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition if n not in ['BN', 'IR'])
         prob += lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition) <= 1
     for p in PLAYERS:
+        if not Roster0[p]:
+            prob += drop[p] == 0
+        if not Available[p]:
+            prob += add[p] == 0
+        prob += roster[p] == Roster0[p] + add[p] - drop[p]
         prob += points_total[p] == lpSum(points[p, t] for t in TIMES)
         prob += discounted_points_total[p] == lpSum(Discounts[t] * points[p, t] for t in TIMES)
     for t in TIMES:
@@ -113,68 +123,66 @@ def optimize(df, week, team, positions):
     assert LpStatus[prob.status] == 'Optimal'
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
+    known_adds = set()
+    known_drops = set()
+    for p in PLAYERS:
+        if add[p].varValue:
+            known_adds.add(p)
+            solutions.append([Names[p], '', '', ''])
     solutions.append(['', '', total_points, discounted_points])
     last_total_points = total_points
     last_discounted_points = discounted_points
 
-    # Re-solve for adding each free agent
-    skip_players = []
-    drops = 0
+    # Re-solve for each drop to acquire a free agent
+    n_drops = 1
     while True:
-        prob.constraints['max_drops'].constant = -n_roster0 + 1 + drops
+        prob.constraints['max_drops'].constant = - n_drops
         prob.solve()
         assert LpStatus[prob.status] == 'Optimal'
-        drop = ''
-        add = ''
+        this_drop = ''
+        this_add = ''
         for p in PLAYERS:
-            if p in skip_players:
-                continue
-            roster1 = roster[p].varValue
-            if Roster0[p] and not roster1:
-                drop = Names[p]
-                prob += roster[p] == 0
-                skip_players.append(p)
-            elif not Roster0[p] and roster1:
-                add = Names[p]
-                prob += roster[p] == 1
-                skip_players.append(p)
-        if add == '' and drop == '':
+            if drop[p].varValue and p not in known_drops:
+                this_drop = Names[p]
+                prob += drop[p] == 1
+                known_drops.add(p)
+            elif add[p].varValue and p not in known_adds:
+                this_add = Names[p]
+                prob += add[p] == 1
+                known_adds.add(p)
+        if this_add == '' and this_drop == '':
             break
-        drops += 1
+        n_drops += 1
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
-        solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
+        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points])
         last_total_points = total_points
         last_discounted_points = discounted_points
 
 
-    # Re-solve for adding each waiver claim
+    # Re-solve for each drop to acquire a waiver claim
     del prob.constraints['only_add_free_agents']
-    prob += 0 == lpSum(roster[p] for p in PLAYERS if not Roster0[p] and not Available[p]), 'only_add_available'
     while True:
-        prob.constraints['max_drops'].constant = -n_roster0 + 1 + drops
+        prob.constraints['max_drops'].constant = - n_drops
         prob.solve()
         assert LpStatus[prob.status] == 'Optimal'
-        drop = ''
-        add = ''
+        this_drop = ''
+        this_add = ''
         for p in PLAYERS:
-            if p in skip_players:
-                continue
-            roster1 = roster[p].varValue
-            if Roster0[p] and not roster1:
-                drop = Names[p]
-                prob += roster[p] == 0
-                skip_players.append(p)
-            elif not Roster0[p] and roster1:
-                add = Names[p] + ' - ' + Owner[p]
-                prob += roster[p] == 1
-                skip_players.append(p)
-        if add == '' and drop == '':
+            if drop[p].varValue and p not in known_drops:
+                this_drop = Names[p]
+                prob += drop[p] == 1
+                known_drops.add(p)
+            elif add[p].varValue and p not in known_adds:
+                this_add = Names[p]
+                prob += add[p] == 1
+                known_adds.add(p)
+        if this_add == '' and this_drop == '':
             break
-        drops += 1
+        n_drops += 1
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
-        solutions.append([add, drop, total_points - last_total_points, discounted_points - last_discounted_points])
+        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points])
         last_total_points = total_points
         last_discounted_points = discounted_points
 
