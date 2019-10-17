@@ -3,14 +3,14 @@ from time import sleep
 
 from bs4 import BeautifulSoup as bs
 import numpy as np
+import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-import pandas as pd
 
 
 # A public league for current week and player IDs
-LG = 39345
+PUBLIC_LEAGUE = 39345
 
 # Create session
 s = requests.Session()
@@ -20,7 +20,7 @@ s.headers = {
 }
 #  add retry loop
 retry = Retry(
-    total=5,
+    total=10,
     backoff_factor=0.51,
     status_forcelist=[500, 502, 503, 504, 999]
 )
@@ -29,10 +29,10 @@ s.mount('http://', adapter)
 s.mount('https://', adapter)
 
 
-def scrape(lg):
+def scrape(league):
     '''Scrape data
 
-    :param lg: league ID
+    :param league: league ID
     '''
 
     # Start timer
@@ -42,20 +42,19 @@ def scrape(lg):
     IDs = set()
     groups = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF']
     for group in groups:
-        # Taken players
-        i = 0
-        while True:
+        print('Scraping all {}...'.format(group))
+        for i in range(3):
             # Request next 25 best players
             r = s.get(
-                'https://football.fantasysports.yahoo.com/f1/{}/players'.format(LG),
+                'https://football.fantasysports.yahoo.com/f1/{}/players'.format(PUBLIC_LEAGUE),
                 params=dict(
                     count=i * 25,
                     pos=group,
-                    status='T',
+                    sort='PR_S',  # sort by projected season rank
+                    stat1='K_K',  # ranks
+                    status='ALL',
                 ),
             )
-            i += 1
-            assert r.status_code == 200
             soup = bs(r.text, 'lxml')
             table = soup.select_one('#players-table table')
             rows = table.select('tbody tr')
@@ -63,26 +62,6 @@ def scrape(lg):
             for row in rows:
                 ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
                 IDs.add(ID)
-        print('Scraped all taken {}'.format(group))
-
-        # Available players (only top 25)
-        r = s.get(
-            'https://football.fantasysports.yahoo.com/f1/{}/players'.format(LG),
-            params=dict(
-                pos=group,
-                sort='PTS',  # sort by points
-                stat1='S_PN4W',  # next 4 weeks (proj)
-                status='A',
-            ),
-        )
-        assert r.status_code == 200
-        soup = bs(r.text, 'lxml')
-        table = soup.select_one('#players-table table')
-        rows = table.select('tbody tr')
-        for row in rows:
-            ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
-            IDs.add(ID)
-        print('Scraped top 25 free {}'.format(group))
 
     # Create dataframe
     df = pd.DataFrame(IDs, columns=['ID'])
@@ -91,14 +70,8 @@ def scrape(lg):
     print('Scraping weekly forecasts...')
     def get_projections(row):
         pid = row['ID']
-        url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(lg, pid)
+        url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(league, pid)
         r = s.get(url)
-        for _ in range(4):
-            if r.status_code == 200: break
-            # Retry query
-            print('Retrying projections for pid {}'.format(pid))
-            sleep(61)
-            r = s.get(url)
         html = r.json()['content']
         soup = bs(html, 'lxml')
         playerinfo = soup.select_one('.playerinfo')
@@ -156,7 +129,7 @@ def current_week():
     '''
 
     # Parse current week from a public league
-    url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(LG)
+    url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(PUBLIC_LEAGUE)
     r = s.get(url)
     assert r.status_code == 200
     soup = bs(r.text, 'lxml')
