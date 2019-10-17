@@ -61,6 +61,7 @@ def scrape(league):
             if not rows: break
             for row in rows:
                 ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
+                ID = int(ID)
                 IDs.add(ID)
 
     # Create dataframe
