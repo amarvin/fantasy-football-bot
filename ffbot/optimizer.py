@@ -1,10 +1,11 @@
+from collections import Counter
 import math
 
 from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value
 from tabulate import tabulate
 
 
-def optimize(df, week, team):
+def optimize(df, week, team, positions):
     '''Optimize player pick-ups from free agents and waivers
     '''
 
@@ -12,8 +13,8 @@ def optimize(df, week, team):
     weekly_points_interest_rate = 0.4
 
     # Game rules
-    MAX_PLAYERS = 14
-    POSITIONS = ['QB', 'WR', 'RB', 'TE', 'W/R/T', 'K', 'DEF']
+    positions = [x.strip() for x in positions.split(',')]
+    MAX_PLAYERS = len(positions) - positions.count('IR')
     PossiblePositions = [
         ('QB', 'QB'),
         ('WR', 'WR'),
@@ -28,7 +29,9 @@ def optimize(df, week, team):
         ('WR,TE', 'TE'),
         ('WR,TE', 'W/R/T')
     ]
-    PositionMax = {'QB': 1, 'WR': 3, 'RB': 2, 'TE': 1, 'W/R/T': 1, 'K': 1, 'DEF': 1}
+    PositionMax = Counter(positions)
+    del PositionMax['BN']
+    POSITIONS = PositionMax.keys()
 
     # Pre-process data
     TIMES = [t for t in range(week, 18)]
