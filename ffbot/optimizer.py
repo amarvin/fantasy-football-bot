@@ -98,6 +98,7 @@ def optimize(df, week, team, positions):
     prob += lpSum(discounted_points_total[p] for p in PLAYERS)
 
     # Define constraints
+    prob += 0 >= lpSum(add[p] for p in PLAYERS), 'max_adds'
     prob += 0 >= lpSum(drop[p] for p in PLAYERS), 'max_drops'
     prob += 0 == lpSum(add[p] for p in PLAYERS if not FreeAgent[p]), 'only_add_free_agents'
     for p, t in PlayerTime:
@@ -123,17 +124,35 @@ def optimize(df, week, team, positions):
     assert LpStatus[prob.status] == 'Optimal'
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
-    known_adds = set()
-    known_drops = set()
-    for p in PLAYERS:
-        if add[p].varValue:
-            known_adds.add(p)
-            solutions.append([Names[p], '', '', ''])
-    solutions.append(['', '', total_points, discounted_points])
+    solutions.append(['<current roster>', '', total_points, discounted_points])
     last_total_points = total_points
     last_discounted_points = discounted_points
 
+    # Re-solve for each add without dropping any players
+    known_adds = set()
+    n_adds = 1
+    while True:
+        prob.constraints['max_adds'].constant = - n_adds
+        prob.solve()
+        assert LpStatus[prob.status] == 'Optimal'
+        this_add = ''
+        for p in PLAYERS:
+            if add[p].varValue and p not in known_adds:
+                this_add = Names[p]
+                prob += add[p] == 1
+                known_adds.add(p)
+        if this_add == '':
+            break
+        n_adds += 1
+        total_points = sum(points_total[p].varValue for p in PLAYERS)
+        discounted_points = value(prob.objective)
+        solutions.append([this_add, '', total_points - last_total_points, discounted_points - last_discounted_points])
+        last_total_points = total_points
+        last_discounted_points = discounted_points
+
     # Re-solve for each drop to acquire a free agent
+    del prob.constraints['max_adds']
+    known_drops = set()
     n_drops = 1
     while True:
         prob.constraints['max_drops'].constant = - n_drops
@@ -174,7 +193,7 @@ def optimize(df, week, team, positions):
                 prob += drop[p] == 1
                 known_drops.add(p)
             elif add[p].varValue and p not in known_adds:
-                this_add = Names[p]
+                this_add = Names[p] + ' - ' + Owner[p]
                 prob += add[p] == 1
                 known_adds.add(p)
         if this_add == '' and this_drop == '':
