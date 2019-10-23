@@ -99,7 +99,6 @@ def optimize(df, week, team, positions):
 
     # Define constraints
     prob += 0 >= lpSum(add[p] for p in PLAYERS), 'max_adds'
-    prob += 0 >= lpSum(drop[p] for p in PLAYERS), 'max_drops'
     prob += 0 == lpSum(add[p] for p in PLAYERS if not FreeAgent[p]), 'only_add_free_agents'
     for p, t in PlayerTime:
         prob += roster[p] == lpSum(assign[p, t, n] for n in POSITIONS if (p, n) in PlayerPosition)
@@ -122,11 +121,21 @@ def optimize(df, week, team, positions):
     solutions = []
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
+    known_drops = set()
+    n_drops = 0
+    for p in PLAYERS:
+        if drop[p].varValue:
+            this_drop = Names[p]
+            prob += drop[p] == 1
+            known_drops.add(p)
+            solutions.append(['', this_drop, None, None])
+            n_drops += 1
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
     solutions.append(['<current roster>', '', total_points, discounted_points])
     last_total_points = total_points
     last_discounted_points = discounted_points
+    prob += n_drops >= lpSum(drop[p] for p in PLAYERS), 'max_drops'
 
     # Re-solve for each add without dropping any players
     known_adds = set()
@@ -152,9 +161,8 @@ def optimize(df, week, team, positions):
 
     # Re-solve for each drop to acquire a free agent
     del prob.constraints['max_adds']
-    known_drops = set()
-    n_drops = 1
     while True:
+        n_drops += 1
         prob.constraints['max_drops'].constant = - n_drops
         prob.solve()
         assert LpStatus[prob.status] == 'Optimal'
@@ -171,7 +179,6 @@ def optimize(df, week, team, positions):
                 known_adds.add(p)
         if this_add == '' and this_drop == '':
             break
-        n_drops += 1
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
         solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points])
