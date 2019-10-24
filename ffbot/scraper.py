@@ -21,7 +21,7 @@ s.headers = {
 #  add retry loop
 retry = Retry(
     total=10,
-    backoff_factor=0.51,
+    backoff_factor=0.6,
     status_forcelist=[500, 502, 503, 504, 999]
 )
 adapter = HTTPAdapter(max_retries=retry)
