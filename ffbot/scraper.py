@@ -121,6 +121,13 @@ def scrape(league):
         return row
     df = df.apply(get_projections, axis=1)
 
+    # Calculate VOR
+    columns = ['Week {}'.format(i) for i in range(current_week(), 18)]
+    df['Remaining'] = df[columns].sum(axis=1)
+    available = df.loc[df['Owner ID'].isnull()]
+    means = available.groupby(['Position'])['Remaining'].nlargest(3).mean(level=0)
+    df['VOR'] = df.apply(lambda row: row['Remaining'] - means[row['Position']], axis=1)
+
     print('Total runtime: {}'.format(datetime.now() - startTime))
     return df
 
