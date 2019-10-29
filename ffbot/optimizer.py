@@ -42,6 +42,7 @@ def optimize(df, week, team, positions):
     FreeAgent = dict()
     Available = dict()
     Projections = dict()
+    VOR = dict()
     for _, row in df.iterrows():
         p = row['ID']
         PLAYERS.add(p)
@@ -56,6 +57,7 @@ def optimize(df, week, team, positions):
         Available[p] = math.isnan(owner_id)
         for t in TIMES:
             Projections[p, t] = float(row['Week {}'.format(t)])
+        VOR[p] = row['VOR']
     #  create other parameters
     Discounts = {
         t: 1 / (1 + weekly_points_interest_rate) ** t_n
@@ -117,7 +119,7 @@ def optimize(df, week, team, positions):
             prob += lpSum(assign[p, t, n] for p in PLAYERS if (p, n) in PlayerPosition) <= PositionMax[n]
 
     # Solve optimization problem
-    solutions_headers = ['Add', 'Drop', 'Total points', 'Discounted points']
+    solutions_headers = ['Add', 'Drop', 'Total points', 'Discounted points', 'VOR']
     solutions = []
     prob.solve()
     assert LpStatus[prob.status] == 'Optimal'
@@ -132,9 +134,11 @@ def optimize(df, week, team, positions):
             n_drops += 1
     total_points = sum(points_total[p].varValue for p in PLAYERS)
     discounted_points = value(prob.objective)
-    solutions.append(['<current roster>', '', total_points, discounted_points])
+    vor = sum(VOR[p] * roster[p].varValue for p in PLAYERS)
+    solutions.append(['<current roster>', '', total_points, discounted_points, vor])
     last_total_points = total_points
     last_discounted_points = discounted_points
+    last_vor = vor
     prob += n_drops >= lpSum(drop[p] for p in PLAYERS), 'max_drops'
 
     # Re-solve for each add without dropping any players
@@ -155,9 +159,11 @@ def optimize(df, week, team, positions):
         n_adds += 1
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
-        solutions.append([this_add, '', total_points - last_total_points, discounted_points - last_discounted_points])
+        vor = sum(VOR[p] * roster[p].varValue for p in PLAYERS)
+        solutions.append([this_add, '', total_points - last_total_points, discounted_points - last_discounted_points, vor - last_vor])
         last_total_points = total_points
         last_discounted_points = discounted_points
+        last_vor = vor
 
     # Re-solve for each drop to acquire a free agent
     del prob.constraints['max_adds']
@@ -181,9 +187,11 @@ def optimize(df, week, team, positions):
             break
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
-        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points])
+        vor = sum(VOR[p] * roster[p].varValue for p in PLAYERS)
+        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points, vor - last_vor])
         last_total_points = total_points
         last_discounted_points = discounted_points
+        last_vor = vor
 
 
     # Re-solve for each drop to acquire a waiver claim
@@ -208,9 +216,11 @@ def optimize(df, week, team, positions):
         n_drops += 1
         total_points = sum(points_total[p].varValue for p in PLAYERS)
         discounted_points = value(prob.objective)
-        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points])
+        vor = sum(VOR[p] * roster[p].varValue for p in PLAYERS)
+        solutions.append([this_add, this_drop, total_points - last_total_points, discounted_points - last_discounted_points, vor - last_vor])
         last_total_points = total_points
         last_discounted_points = discounted_points
+        last_vor = vor
 
     # Print results
     print(tabulate(solutions, solutions_headers, floatfmt='+.2f'))
