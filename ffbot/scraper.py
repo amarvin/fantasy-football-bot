@@ -21,7 +21,7 @@ s.headers = {
 #  add retry loop
 retry = Retry(
     total=10,
-    backoff_factor=0.6,
+    backoff_factor=1,
     status_forcelist=[500, 502, 503, 504, 999]
 )
 adapter = HTTPAdapter(max_retries=retry)
@@ -139,7 +139,6 @@ def current_week():
     # Parse current week from a public league
     url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(PUBLIC_LEAGUE)
     r = s.get(url)
-    assert r.status_code == 200
     soup = bs(r.text, 'lxml')
     span = soup.select_one('li.Navitem.current a.Navtarget')
     week = span.text.split()[1]
