@@ -108,3 +108,4 @@ venv.bak/
 chromedriver.exe
 .idea
 credentials.json
+*.mps
