@@ -193,9 +193,32 @@ def optimize(df, week, team, positions):
         last_discounted_points = discounted_points
         last_vor = vor
 
+    # Re-solve for each waiver claim add without dropping any players
+    del prob.constraints['only_add_free_agents']
+    prob += 0 >= lpSum(add[p] for p in PLAYERS), 'max_adds'
+    while True:
+        prob.constraints['max_adds'].constant = - n_adds
+        prob.solve()
+        assert LpStatus[prob.status] == 'Optimal'
+        this_add = ''
+        for p in PLAYERS:
+            if add[p].varValue and p not in known_adds:
+                this_add = Names[p]
+                prob += add[p] == 1
+                known_adds.add(p)
+        if this_add == '':
+            break
+        n_adds += 1
+        total_points = sum(points_total[p].varValue for p in PLAYERS)
+        discounted_points = value(prob.objective)
+        vor = sum(VOR[p] * roster[p].varValue for p in PLAYERS)
+        solutions.append([this_add, '', total_points - last_total_points, discounted_points - last_discounted_points, vor - last_vor])
+        last_total_points = total_points
+        last_discounted_points = discounted_points
+        last_vor = vor
 
     # Re-solve for each drop to acquire a waiver claim
-    del prob.constraints['only_add_free_agents']
+    del prob.constraints['max_adds']
     while True:
         prob.constraints['max_drops'].constant = - n_drops
         prob.solve()
