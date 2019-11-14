@@ -183,6 +183,7 @@ def optimize(df, week, team, positions):
                 this_add = Names[p]
                 prob += add[p] == 1
                 known_adds.add(p)
+                n_adds += 1
         if this_add == '' and this_drop == '':
             break
         total_points = sum(points_total[p].varValue for p in PLAYERS)
