@@ -204,7 +204,7 @@ def optimize(df, week, team, positions):
         this_add = ''
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
-                this_add = Names[p]
+                this_add = Names[p] + ' - ' + Owner[p]
                 prob += add[p] == 1
                 known_adds.add(p)
         if this_add == '':
