@@ -38,8 +38,8 @@ def scrape(league):
     # Start timer
     startTime = datetime.now()
 
-    # Scrape player IDs from a public league
-    IDs = set()
+    # Scrape player IDs and teams from a public league
+    data = set()
     groups = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF']
     for group in groups:
         print('Scraping all {}...'.format(group))
@@ -60,12 +60,15 @@ def scrape(league):
             rows = table.select('tbody tr')
             if not rows: break
             for row in rows:
-                ID = row.select('td')[1].select_one('span.player-status a')['data-ys-playerid']
+                td = row.select('td')[1]
+                ID = td.select_one('span.player-status a')['data-ys-playerid']
                 ID = int(ID)
-                IDs.add(ID)
+                team = td.select_one('.ysf-player-name span').text
+                team = team.split()[0]
+                data.add((ID, team))
 
     # Create dataframe
-    df = pd.DataFrame(IDs, columns=['ID'])
+    df = pd.DataFrame(data, columns=['ID', 'Team'])
 
     # Scrape projections
     print('Scraping weekly forecasts...')
@@ -120,6 +123,11 @@ def scrape(league):
 
         return row
     df = df.apply(get_projections, axis=1)
+
+    # Reorder columns
+    columns = list(df.columns)
+    columns[2], columns[1] = columns[1], columns[2]
+    df = df[columns]
 
     # Calculate VOR
     columns = ['Week {}'.format(i) for i in range(current_week(), 18)]
