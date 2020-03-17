@@ -1,10 +1,13 @@
 # fantasy-football-bot (ffbot)
+
 Automate playing Yahoo Fantasy Football
 
-# Installation
+## Installation
+
 - `pip install ffbot`
 
-# Usage
+## Usage
+
 ```python
 import ffbot
 
@@ -28,14 +31,15 @@ df = ffbot.scrape(league)
 ffbot.optimize(df, week, team, positions)
 
 # Output will look like:
-'''
-Add                              Drop                Total points    Discounted points
--------------------------------  ----------------  --------------  -------------------
-<current roster>                                         +1583.94              +367.51
-Kansas City                                                +16.27                +2.24
-Matt Bryant                      Joey Slye                  +4.60                +1.67
-Dede Westbrook                   Kenyan Drake               +4.27                +0.65
-Jordan Howard - Waivers (Oct 2)  Marvin Jones Jr.          +10.37               +17.23'''
+#
+# Add                              Drop                Total points    Discounted points
+# -------------------------------  ----------------  --------------  -------------------
+# <current roster>                                         +1583.94              +367.51
+# Kansas City                                                +16.27                +2.24
+# Matt Bryant                      Joey Slye                  +4.60                +1.67
+# Dede Westbrook                   Kenyan Drake               +4.27                +0.65
+# Jordan Howard - Waivers (Oct 2)  Marvin Jones Jr.          +10.37               +17.23
+#
 #  which means that optimal weekly rosters of your current players scores 1583.94 points
 #  across the season and 367.51 discounted points (points in week 1 are worth more than week 12).
 #  The best free agent to add is Kansas City, which increases discounted points by 2.24 (although lowers total season points by 16.27).
@@ -43,5 +47,6 @@ Jordan Howard - Waivers (Oct 2)  Marvin Jones Jr.          +10.37               
 #  Only one Waiver claim (for Jordon Howard) increases discounted points.
 ```
 
-# Contribution
+## Contribution
+
 Please add Issues or submit Pull requests!
