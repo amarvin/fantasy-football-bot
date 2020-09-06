@@ -15,20 +15,22 @@ from user_agent import generate_user_agent
 PUBLIC_LEAGUE = 39346
 
 # Create session
-s = requests.Session()
-s.headers = {
-    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-}
-#  add retry loop
-retry = Retry(
-    total=10,
-    backoff_factor=0.6,
-    status_forcelist=[500, 502, 503, 504, 999]
-)
-adapter = HTTPAdapter(max_retries=retry)
-s.mount('http://', adapter)
-s.mount('https://', adapter)
-    'User-Agent': generate_user_agent(),
+def create_session():
+    s = requests.Session()
+    s.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+        'User-Agent': generate_user_agent(),
+    }
+    #  add retry loop
+    retry = Retry(
+        total=10,
+        backoff_factor=0.6,
+        status_forcelist=[500, 502, 503, 504, 999]
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    s.mount('http://', adapter)
+    s.mount('https://', adapter)
+    return s
 
 
 def scrape(league):
@@ -43,6 +45,7 @@ def scrape(league):
     # Scrape player IDs and teams from a public league
     data = set()
     groups = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF']
+    s = create_session()
     for group in groups:
         print('Scraping all {}...'.format(group))
         for i in range(3):
@@ -76,6 +79,11 @@ def scrape(league):
     # Scrape projections
     print('Scraping weekly forecasts...')
     def get_projections(row):
+        # New session every 100 players
+        global s
+        if row.name % 100 == 0:
+            s = create_session()
+
         pid = row['ID']
         url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(league, pid)
         s.headers['User-Agent'] = generate_user_agent()
@@ -149,6 +157,7 @@ def current_week():
     '''
 
     # Parse current week from a public league
+    s = create_session()
     url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(PUBLIC_LEAGUE)
     s.headers['User-Agent'] = generate_user_agent()
     r = s.get(url)
