@@ -30,6 +30,7 @@ setup(
     python_requires='>=3.0',
     install_requires=[
         'beautifulsoup4',
+        'lxml',
         'pandas',
         'pulp',
         'requests',
