@@ -35,5 +35,6 @@ setup(
         'pulp',
         'requests',
         'tabulate',
+        'user_agent',
     ],
 )

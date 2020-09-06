@@ -2,14 +2,13 @@ from datetime import datetime
 from random import choice
 from time import sleep
 
-from .constants import USER_AGENTS
-
 from bs4 import BeautifulSoup as bs
 import numpy as np
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from user_agent import generate_user_agent
 
 
 # A public league for current week and player IDs
@@ -19,7 +18,6 @@ PUBLIC_LEAGUE = 39346
 s = requests.Session()
 s.headers = {
     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    'User-Agent': choice(USER_AGENTS),
 }
 #  add retry loop
 retry = Retry(
@@ -30,6 +28,7 @@ retry = Retry(
 adapter = HTTPAdapter(max_retries=retry)
 s.mount('http://', adapter)
 s.mount('https://', adapter)
+    'User-Agent': generate_user_agent(),
 
 
 def scrape(league):
@@ -48,7 +47,7 @@ def scrape(league):
         print('Scraping all {}...'.format(group))
         for i in range(3):
             # Request next 25 best players
-            s.headers['User-Agent'] = choice(USER_AGENTS)
+            s.headers['User-Agent'] = generate_user_agent()
             r = s.get(
                 'https://football.fantasysports.yahoo.com/f1/{}/players'.format(PUBLIC_LEAGUE),
                 params=dict(
@@ -79,7 +78,7 @@ def scrape(league):
     def get_projections(row):
         pid = row['ID']
         url = 'https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}'.format(league, pid)
-        s.headers['User-Agent'] = choice(USER_AGENTS)
+        s.headers['User-Agent'] = generate_user_agent()
         r = s.get(url)
         html = r.json()['content']
         soup = bs(html, 'lxml')
@@ -151,7 +150,7 @@ def current_week():
 
     # Parse current week from a public league
     url = 'https://football.fantasysports.yahoo.com/f1/{}'.format(PUBLIC_LEAGUE)
-    s.headers['User-Agent'] = choice(USER_AGENTS)
+    s.headers['User-Agent'] = generate_user_agent()
     r = s.get(url)
     soup = bs(r.text, 'lxml')
     span = soup.select_one('li.Navitem.current a.Navtarget')
