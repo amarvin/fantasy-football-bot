@@ -13,7 +13,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 39345
+PUBLIC_LEAGUE = 39346
 
 # Create session
 s = requests.Session()
