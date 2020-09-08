@@ -11,6 +11,11 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# Get requirements
+with open('requirements.txt') as f:
+    requires = (line.strip() for line in f)
+    install_requires = [req for req in requires if req and not req.startswith('#')]
+
 setup(
     name='ffbot',
     version=VERSION,
@@ -28,13 +33,5 @@ setup(
     keywords='fantasy-football bot yahoo',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     python_requires='>=3.0',
-    install_requires=[
-        'beautifulsoup4',
-        'lxml',
-        'pandas',
-        'pulp',
-        'requests',
-        'tabulate',
-        'user_agent',
-    ],
+    install_requires=install_requires,
 )
