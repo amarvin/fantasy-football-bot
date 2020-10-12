@@ -5,6 +5,9 @@ from pulp import LpBinary, LpContinuous, LpMaximize, LpProblem, LpStatus, lpSum,
 from tabulate import tabulate
 
 
+IR_STATUSES = ['COVID-19', 'IR', 'O', 'PUP-R']
+
+
 def optimize(df, week, team, positions):
     '''Optimize player pick-ups from free agents and waivers
     '''
@@ -74,7 +77,7 @@ def optimize(df, week, team, positions):
         # All players take bench position
         PlayerPosition.append((p, 'BN'))
         # All injured players can take IR position
-        if Status[p] in ['O', 'IR']:
+        if Status[p] in IR_STATUSES:
             PlayerPosition.append((p, 'IR'))
     PlayerTimePosition = [
         (p, t, n)
