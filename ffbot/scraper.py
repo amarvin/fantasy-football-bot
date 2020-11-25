@@ -146,7 +146,7 @@ def scrape(league):
     df['Remaining'] = df[columns].sum(axis=1)
     available = df.loc[df['Owner ID'].isnull()]
     means = available.groupby(['Position'])['Remaining'].nlargest(3).mean(level=0)
-    df['VOR'] = df.apply(lambda row: row['Remaining'] - means[row['Position']], axis=1)
+    df['VOR'] = df.apply(lambda row: row['Remaining'] - max(means[n] for n in row['Position'].split(', ')), axis=1)
 
     print('Total runtime: {}'.format(datetime.now() - startTime))
     return df
