@@ -12,7 +12,7 @@ from user_agent import generate_user_agent
 
 
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 39346
+PUBLIC_LEAGUE = 39452
 
 # Create session
 def create_session():
