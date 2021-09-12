@@ -22,7 +22,7 @@ Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url wil
 ```python
 >>> league = 123456
 >>> team = 1
->>> positions = 'QB, WR, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, IR'
+>>> positions = "QB, WR, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, IR"
 >>> week = ffbot.current_week()
 >>> df = ffbot.scrape(league)
 Scraping all QB...
