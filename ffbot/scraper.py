@@ -12,8 +12,9 @@ from user_agent import generate_user_agent
 # A public league for current week and player IDs
 PUBLIC_LEAGUE = 39452
 
-# Create session
+
 def create_session():
+    """Create requests session with retries and random user-agent"""
     s = requests.Session()
     s.headers = {
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
