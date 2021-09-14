@@ -9,12 +9,14 @@ from pulp import (
     LpStatus,
     lpSum,
     LpVariable,
+    PULP_CBC_CMD,
     value,
 )
 from tabulate import tabulate
 
 
 IR_STATUSES = ["COVID-19", "IR", "O", "PUP-R"]
+SOLVER_SETTINGS = PULP_CBC_CMD(msg=0)
 
 
 def optimize(df, week, team, positions):
@@ -150,7 +152,7 @@ def optimize(df, week, team, positions):
     # Solve optimization problem
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
     solutions = []
-    prob.solve()
+    prob.solve(SOLVER_SETTINGS)
     assert LpStatus[prob.status] == "Optimal"
     known_drops = set()
     n_drops = 0
@@ -175,7 +177,7 @@ def optimize(df, week, team, positions):
     n_adds = 1
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve()
+        prob.solve(SOLVER_SETTINGS)
         assert LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
@@ -207,7 +209,7 @@ def optimize(df, week, team, positions):
     while True:
         n_drops += 1
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve()
+        prob.solve(SOLVER_SETTINGS)
         assert LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
@@ -244,7 +246,7 @@ def optimize(df, week, team, positions):
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve()
+        prob.solve(SOLVER_SETTINGS)
         assert LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
@@ -275,7 +277,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve()
+        prob.solve(SOLVER_SETTINGS)
         assert LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
