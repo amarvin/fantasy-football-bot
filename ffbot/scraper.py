@@ -1,6 +1,4 @@
 from datetime import datetime
-from random import choice
-from time import sleep
 
 from bs4 import BeautifulSoup as bs
 import numpy as np
