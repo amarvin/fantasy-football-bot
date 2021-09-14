@@ -158,7 +158,7 @@ def optimize(df, week, team, positions):
     n_drops = 0
     for p in PLAYERS:
         if drop[p].varValue:
-            this_drop = Names[p]
+            this_drop = Names[p] + " (" + Position[p] + ")"
             prob += drop[p] == 1
             known_drops.add(p)
             solutions.append(["", this_drop, None, None])
@@ -182,7 +182,7 @@ def optimize(df, week, team, positions):
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
-                this_add = Names[p]
+                this_add = Names[p] + " (" + Position[p] + ")"
                 prob += add[p] == 1
                 known_adds.add(p)
         if this_add == "":
@@ -215,11 +215,11 @@ def optimize(df, week, team, positions):
         this_add = ""
         for p in PLAYERS:
             if drop[p].varValue and p not in known_drops:
-                this_drop = Names[p]
+                this_drop = Names[p] + " (" + Position[p] + ")"
                 prob += drop[p] == 1
                 known_drops.add(p)
             elif add[p].varValue and p not in known_adds:
-                this_add = Names[p]
+                this_add = Names[p] + " (" + Position[p] + ")"
                 prob += add[p] == 1
                 known_adds.add(p)
                 n_adds += 1
@@ -251,7 +251,7 @@ def optimize(df, week, team, positions):
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
-                this_add = Names[p] + " - " + Owner[p]
+                this_add = Names[p] + " (" + Position[p] + ") - " + Owner[p]
                 prob += add[p] == 1
                 known_adds.add(p)
         if this_add == "":
@@ -283,11 +283,11 @@ def optimize(df, week, team, positions):
         this_add = ""
         for p in PLAYERS:
             if drop[p].varValue and p not in known_drops:
-                this_drop = Names[p]
+                this_drop = Names[p] + " (" + Position[p] + ")"
                 prob += drop[p] == 1
                 known_drops.add(p)
             elif add[p].varValue and p not in known_adds:
-                this_add = Names[p] + " - " + Owner[p]
+                this_add = Names[p] + " (" + Position[p] + ") - " + Owner[p]
                 prob += add[p] == 1
                 known_adds.add(p)
         if this_add == "" and this_drop == "":
