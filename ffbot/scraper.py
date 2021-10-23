@@ -45,7 +45,8 @@ def scrape(league):
     s = create_session()
     for group in groups:
         print("Scraping all {}...".format(group))
-        for i in range(3):
+        i = 0
+        while True:
             # Request next 25 best players
             s.headers["User-Agent"] = generate_user_agent()
             r = s.get(
@@ -60,6 +61,7 @@ def scrape(league):
                     status="ALL",
                 ),
             )
+            i += 1
             soup = bs(r.text, "lxml")
             table = soup.select_one("#players-table table")
             rows = table.select("tbody tr")
