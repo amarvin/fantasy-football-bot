@@ -27,20 +27,20 @@ def optimize(df, week, team, positions):
 
     # Game rules
     positions = [x.strip() for x in positions.split(",")]
-    PossiblePositions = [
-        ("QB", "QB"),
-        ("WR", "WR"),
-        ("WR", "W/R/T"),
-        ("RB", "RB"),
-        ("RB", "W/R/T"),
-        ("TE", "TE"),
-        ("TE", "W/R/T"),
-        ("K", "K"),
-        ("DEF", "DEF"),
-        ("WR,TE", "WR"),
-        ("WR,TE", "TE"),
-        ("WR,TE", "W/R/T"),
-    ]
+    PossiblePositions = dict(
+        QB={"QB"},
+        WR={"WR", "W/R/T"},
+        RB={"RB", "W/R/T"},
+        TE={"TE", "W/R/T"},
+        K={"K"},
+        DEF={"DEF"},
+    )
+    for position in df["Position"].unique():
+        if position not in PossiblePositions:
+            # There is a player that can play multiple positions, so consider those options too
+            PossiblePositions[position] = set()
+            for n in position.split(","):
+                PossiblePositions[position].update(PossiblePositions[n.strip()])
     PositionMax = Counter(positions)
     POSITIONS = PositionMax.keys()
 
@@ -80,7 +80,7 @@ def optimize(df, week, team, positions):
         (p, n)
         for p in PLAYERS
         for n in POSITIONS
-        if (Position[p], n) in PossiblePositions
+        if n in PossiblePositions[Position[p]]
     ]
     for p in PLAYERS:
         # All players take bench position
