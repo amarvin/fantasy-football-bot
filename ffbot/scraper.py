@@ -88,11 +88,10 @@ def scrape(league):
             s = create_session()
 
         pid = row["ID"]
-        url = "https://football.fantasysports.yahoo.com/f1/{}/playernote?pid={}".format(
-            league, pid
-        )
+        url = "https://football.fantasysports.yahoo.com/f1/{}/playernote".format(league)
+        params = {"pid": pid}
         s.headers["User-Agent"] = generate_user_agent()
-        r = s.get(url)
+        r = s.get(url, params=params)
         html = r.json()["content"]
         soup = bs(html, "lxml")
         playerinfo = soup.select_one(".playerinfo")
