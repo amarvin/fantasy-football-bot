@@ -22,19 +22,20 @@ def save(df, week):
     df.to_csv(filename, index=False)
 
 
-def load():
+def load(filepath=None):
     """Load latest scraped data"""
 
-    # Find latest csv file
-    folder = join(".", "data")
-    files = [f for f in listdir(folder) if isfile(join(folder, f))]
-    latest_file = max([join(folder, f) for f in files], key=getctime)
-    latest_filename = split(latest_file)[1]
+    if not filepath:
+        # Find latest csv file
+        folder = join(".", "data")
+        files = [f for f in listdir(folder) if isfile(join(folder, f))]
+        filepath = max([join(folder, f) for f in files], key=getctime)
+    filename = split(filepath)[1]
 
     # Unpack data
-    week = re.findall(r"\d+", latest_filename)[-1]
+    week = re.findall(r"\d+", filename)[-1]
     week = int(week)
-    df = pd.read_csv(latest_file)
+    df = pd.read_csv(filepath)
 
     # Return results
     return df, week
