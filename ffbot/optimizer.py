@@ -23,7 +23,7 @@ def optimize(df, week, team, positions):
     """Optimize player pick-ups from free agents and waivers"""
 
     # Settings
-    weekly_points_interest_rate = 0.4
+    WEEKLY_POINTS_INTEREST_RATE = 0.4
 
     # Game rules
     positions = [x.strip() for x in positions.split(",")]
@@ -73,7 +73,7 @@ def optimize(df, week, team, positions):
         VOR[p] = row["VOR"]
     #  create other parameters
     Discounts = {
-        t: 1 / (1 + weekly_points_interest_rate) ** t_n for t_n, t in enumerate(TIMES)
+        t: 1 / (1 + WEEKLY_POINTS_INTEREST_RATE) ** t_n for t_n, t in enumerate(TIMES)
     }
     PlayerTime = [(p, t) for p in PLAYERS for t in TIMES]
     PlayerPosition = [
