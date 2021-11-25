@@ -20,11 +20,11 @@ To connect to your Yahoo league and team, you need your league ID and team ID.
 Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url will also include your league and team ID.
 
 ```python
->>> league = 123456
->>> team = 1
->>> positions = "QB, WR, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, IR"
+>>> LEAGUE = 123456
+>>> TEAM = 1
+>>> POSITIONS = "QB, WR, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, IR"
 >>> week = ffbot.current_week()
->>> df = ffbot.scrape(league)
+>>> df = ffbot.scrape(LEAGUE)
 Scraping all QB...
 Scraping all WR...
 Scraping all RB...
@@ -49,7 +49,7 @@ The optimizer decides which players to add and drop, and how to assign each play
 Optimization is repeated for current roster, for one player add/drop, two player add/drops, etc.
 
 ```python
->>> ffbot.optimize(df, week, team, positions)
+>>> ffbot.optimize(df, week, TEAM, POSITIONS)
 Add                              Drop                Total points    Discounted points      VOR
 -------------------------------  ----------------  --------------  -------------------  -------
 <current roster>                                         +1583.94              +367.51  +226.73
