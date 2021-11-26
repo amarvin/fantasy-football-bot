@@ -3,5 +3,4 @@ lxml
 pandas
 pulp
 requests
-tabulate
 user_agent

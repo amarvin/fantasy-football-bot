@@ -1,6 +1,6 @@
 from collections import Counter
-import math
 
+import pandas as pd
 from pulp import (
     LpBinary,
     LpContinuous,
@@ -12,7 +12,6 @@ from pulp import (
     PULP_CBC_CMD,
     value,
 )
-from tabulate import tabulate
 
 
 IR_STATUSES = ["COVID-19", "IR", "O", "PUP-R"]
@@ -66,8 +65,8 @@ def optimize(df, week, team, positions):
         owner = row["Owner"]
         Owner[p] = owner
         Status[p] = row["Status"]
-        FreeAgent[p] = math.isnan(owner_id) and owner == "Free Agent"
-        Available[p] = math.isnan(owner_id)
+        FreeAgent[p] = pd.isna(owner_id) and owner == "Free Agent"
+        Available[p] = pd.isna(owner_id)
         for t in TIMES:
             Projections[p, t] = float(row["Week {}".format(t)])
         VOR[p] = row["VOR"]
@@ -309,5 +308,6 @@ def optimize(df, week, team, positions):
         last_discounted_points = discounted_points
         last_vor = vor
 
-    # Print results
-    print(tabulate(solutions, solutions_headers, floatfmt="+.2f"))
+    df_opt = pd.DataFrame(solutions, columns=solutions_headers)
+    df_opt.fillna("", inplace=True)
+    return df_opt
