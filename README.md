@@ -35,11 +35,11 @@ Scraping weekly forecasts...
 Total runtime: 0:10:33.784455
 ```
 
-Optional methods to save data to CSV, and load latest data:
+Optional methods to save data to CSV, and load data:
 
 ```python
 >>> ffbot.save(df, week)
->>> df, week = ffbot.load()
+>>> df, week = ffbot.load()  # loads latest file, but you can also provide a filepath
 ```
 
 ### Optimize add and drop players
