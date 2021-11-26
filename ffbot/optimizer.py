@@ -14,7 +14,13 @@ from pulp import (
 )
 
 
-IR_STATUSES = ["COVID-19", "IR", "O", "PUP-R"]
+IR_STATUSES = {
+    "COVID",  # e.g. COVID-19
+    "IR",  # e.g. IR, IR-R
+    "NFI",  # e.g. NFI-A, NFI-R
+    "O",
+    "PUP",  # e.g. PUP-R
+}
 SOLVER_SETTINGS = PULP_CBC_CMD(msg=0)
 
 
@@ -85,7 +91,7 @@ def optimize(df, week, team, positions):
         # All players take bench position
         PlayerPosition.append((p, "BN"))
         # All injured players can take IR position
-        if Status[p] in IR_STATUSES:
+        if not pd.isna(Status[p]) and Status[p].split("-")[0] in IR_STATUSES:
             PlayerPosition.append((p, "IR"))
     PlayerTimePosition = [
         (p, t, n)
