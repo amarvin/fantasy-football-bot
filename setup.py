@@ -11,10 +11,16 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-# Get requirements
-with open("requirements.txt") as f:
-    requires = (line.strip() for line in f)
-    install_requires = [req for req in requires if req and not req.startswith("#")]
+
+def get_requirements(kind: str=None):
+    if kind:
+        filename = f"requirements-{kind}.txt"
+    else:
+        filename = "requirements.txt"
+    with open(filename) as f:
+        requires = (line.strip() for line in f)
+        return [req for req in requires if req and not req.startswith("#")]
+
 
 setup(
     name="ffbot",
@@ -33,5 +39,8 @@ setup(
     keywords="fantasy-football bot yahoo",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     python_requires=">=3.0",
-    install_requires=install_requires,
+    install_requires=get_requirements(),
+    extra_require={
+        "test": get_requirements("test"),
+    },
 )

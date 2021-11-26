@@ -68,3 +68,9 @@ Only one Waiver claim (for Jordon Howard) increases discounted points.
 ## Contribution
 
 Please add Issues or submit Pull requests!
+
+For local development, install optional testing dependencies using
+
+```sh
+pip install ffbot[test]
+```
