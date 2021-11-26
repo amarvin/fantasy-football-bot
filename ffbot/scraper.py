@@ -154,7 +154,7 @@ def scrape(league):
     means = available.groupby(["Position"])["Remaining"].nlargest(3).mean(level=0)
     df["VOR"] = df.apply(
         lambda row: row["Remaining"]
-        - max(means[n] for n in row["Position"].split(", ")),
+        - max(means[n.strip()] for n in row["Position"].split(",")),
         axis=1,
     )
 
