@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bs4 import BeautifulSoup as bs
+from loguru import logger
 import numpy as np
 import pandas as pd
 import requests
@@ -44,7 +45,7 @@ def scrape(league):
     groups = ["QB", "WR", "RB", "TE", "K", "DEF"]
     s = create_session()
     for group in groups:
-        print("Scraping all {}...".format(group))
+        logger.info("Scraping all {}...".format(group))
         i = 0
         while True:
             # Request next 25 best players
@@ -79,7 +80,7 @@ def scrape(league):
     df = pd.DataFrame(data, columns=["ID", "Team"])
 
     # Scrape projections
-    print("Scraping weekly forecasts...")
+    logger.info("Scraping weekly forecasts...")
 
     def get_projections(row):
         # New session every 100 players
@@ -157,7 +158,7 @@ def scrape(league):
         axis=1,
     )
 
-    print("Total runtime: {}".format(datetime.now() - startTime))
+    logger.info("Total runtime: {}".format(datetime.now() - startTime))
     return df
 
 
