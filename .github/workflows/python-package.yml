@@ -26,6 +26,9 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Code format with black
+      run: |
+        black . --check --color --diff
     - name: Test with pytest
       run: |
         pytest

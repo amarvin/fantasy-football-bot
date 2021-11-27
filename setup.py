@@ -12,7 +12,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 
-def get_requirements(kind: str=None):
+def get_requirements(kind: str = None):
     if kind:
         filename = f"requirements-{kind}.txt"
     else:
