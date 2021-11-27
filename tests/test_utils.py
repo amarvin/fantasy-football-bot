@@ -7,7 +7,7 @@ import ffbot
 
 def test_load():
     df, week = ffbot.load(SCRAPER_FILE)
-    desired_week = 12
+    desired_week = 4
     assert week == desired_week
     desired_df = pd.read_csv(SCRAPER_FILE)
     assert_frame_equal(df, desired_df)
