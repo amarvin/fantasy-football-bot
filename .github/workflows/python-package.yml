@@ -31,4 +31,4 @@ jobs:
         black . --check --color --diff
     - name: Test with pytest
       run: |
-        pytest
+        pytest --cov=ffbot
