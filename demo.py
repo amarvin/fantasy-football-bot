@@ -20,5 +20,5 @@ df = ffbot.scrape(LEAGUE)
 #  decides which players to add and drop
 #  optimization is repeated for current roster, for one player add/drop, two player add/drops, etc.
 df_opt = ffbot.optimize(df, week, TEAM, POSITIONS)
-pd.options.display.float_format = "{:+,.2f}".format  # (optional) set number display format
+pd.options.display.float_format = "{:+,.2f}".format  # number display format
 print(df_opt)
