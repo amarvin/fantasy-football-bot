@@ -157,6 +157,8 @@ def scrape(league):
         - max(means[n.strip()] for n in row["Position"].split(",")),
         axis=1,
     )
+    df.sort_values(by="VOR", ascending=False, inplace=True)
+    df = df.round(2)
 
     logger.info("Total runtime: {}".format(datetime.now() - startTime))
     return df

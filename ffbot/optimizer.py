@@ -315,5 +315,6 @@ def optimize(df, week, team, positions):
         last_vor = vor
 
     df_opt = pd.DataFrame(solutions, columns=solutions_headers)
+    df_opt = df_opt.round(2)
     df_opt.fillna("", inplace=True)
     return df_opt
