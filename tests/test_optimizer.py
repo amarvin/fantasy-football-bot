@@ -17,6 +17,6 @@ def test_optimize():
 5                  Player 162 (DEF)  Player 140 (DEF)        -1.62              0.64  -5.79
 6                    Player 135 (K)    Player 59 (RB)         9.26              0.37 -39.68
 7  Player 90 (WR) - Waivers (Jan 2)                           9.45              3.23  17.22
-8                                     Player 132 (WR)            0                 0      0
+8                                     Player 132 (WR)          0.0               0.0    0.0
 9      Player 129 (QB) - Free Agent   Player 174 (WR)        14.53              0.85  11.16"""  # noqa: W291
     assert df_opt.to_string() == desired_df_opt
