@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util import Retry
 from user_agent import generate_user_agent
 
 
@@ -22,9 +22,7 @@ def create_session():
         "User-Agent": generate_user_agent(),
     }
     #  add retry loop
-    retry = Retry(
-        total=10, backoff_factor=0.6, status_forcelist=[500, 502, 503, 504, 999]
-    )
+    retry = Retry(backoff_factor=0.6, status_forcelist=[500, 502, 503, 504, 999])
     adapter = HTTPAdapter(max_retries=retry)
     s.mount("http://", adapter)
     s.mount("https://", adapter)
