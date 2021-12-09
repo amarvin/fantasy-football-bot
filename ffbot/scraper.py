@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
+from tqdm import tqdm
 from urllib3.util import Retry
 from user_agent import generate_user_agent
 
@@ -78,8 +79,6 @@ def scrape(league):
     df = pd.DataFrame(data, columns=["ID", "Team"])
 
     # Scrape projections
-    logger.info("Scraping weekly forecasts...")
-
     def get_projections(row):
         # New session every 100 players
         global s
@@ -138,7 +137,8 @@ def scrape(league):
 
         return row
 
-    df = df.apply(get_projections, axis=1)
+    tqdm.pandas(desc="Scraping weekly forecasts")
+    df = df.progress_apply(get_projections, axis=1)
 
     # Reorder columns
     columns = list(df.columns)
