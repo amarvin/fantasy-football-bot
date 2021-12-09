@@ -41,7 +41,7 @@ scrape = html.Div(
             page_size=10,
             sort_action="native",
             style_as_list_view=True,
-            style_table={'overflowX': 'auto'},
+            style_table={"overflowX": "auto"},
         ),
     ]
 )
