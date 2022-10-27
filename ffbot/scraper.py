@@ -1,15 +1,14 @@
 from datetime import datetime
 
-from bs4 import BeautifulSoup as bs
-from loguru import logger
 import numpy as np
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup as bs
+from loguru import logger
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from urllib3.util import Retry
 from user_agent import generate_user_agent
-
 
 # A public league for current week and player IDs
 PUBLIC_LEAGUE = 76554

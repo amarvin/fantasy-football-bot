@@ -2,17 +2,16 @@ from collections import Counter
 
 import pandas as pd
 from pulp import (
+    PULP_CBC_CMD,
     LpBinary,
     LpContinuous,
     LpMaximize,
     LpProblem,
     LpStatus,
-    lpSum,
     LpVariable,
-    PULP_CBC_CMD,
+    lpSum,
     value,
 )
-
 
 IR_STATUSES = {
     "COVID",  # e.g. COVID-19

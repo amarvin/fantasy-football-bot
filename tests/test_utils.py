@@ -1,8 +1,9 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from . import SCRAPER_FILE
 import ffbot
+
+from . import SCRAPER_FILE
 
 
 def test_load():
