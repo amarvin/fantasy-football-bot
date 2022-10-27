@@ -1,6 +1,5 @@
 import ffbot
 
-
 # Yahoo league/team id
 # Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url will also include your league and team ID
 LEAGUE = 123456
