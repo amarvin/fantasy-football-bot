@@ -3,6 +3,9 @@ loguru
 lxml
 pandas
 pulp
+scrapy
+scrapy-fake-useragent
+scrapy-rotating-proxies
 requests
 tqdm
 user_agent
