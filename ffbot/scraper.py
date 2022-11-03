@@ -18,6 +18,9 @@ def create_session():
     """Create requests session with retries and random user-agent"""
     s = requests.Session()
     s.headers = {
+        "Accept": "text/html",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US",
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         "User-Agent": generate_user_agent(),
     }
