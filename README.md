@@ -24,7 +24,7 @@ pip install ffbot
 ### Scrape player forecasts
 
 To connect to your Yahoo league and team, you need your league ID and team ID.
-Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url will also include your league and team ID.
+Visit your team at <https://football.fantasysports.yahoo.com/f1/>, and the url will also include your league and team ID.
 
 ```python
 >>> LEAGUE = 123456
