@@ -4,6 +4,7 @@
 [![PyPI downloads](https://pepy.tech/badge/ffbot)](https://pepy.tech/project/ffbot)
 [![License](https://img.shields.io/github/license/amarvin/fantasy-football-bot)](https://github.com/amarvin/fantasy-football-bot/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![codecov](https://codecov.io/gh/amarvin/fantasy-football-bot/branch/main/graph/badge.svg?token=CH6M9DR7VX)](https://codecov.io/gh/amarvin/fantasy-football-bot)
 
 Automate playing Yahoo Fantasy Football
