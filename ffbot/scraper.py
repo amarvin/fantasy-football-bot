@@ -12,6 +12,9 @@ from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
 PUBLIC_LEAGUE = 76554
+PUBLIC_LEAGUE_IDP = 22621
+SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
+SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
 
 def create_session():
@@ -32,10 +35,11 @@ def create_session():
     return s
 
 
-def scrape(league):
+def scrape(league, is_IDP: bool = False):
     """Scrape data
 
     :param league: league ID
+    :param is_IDP: (bool) is this a individual defense player (IDP) league?
     """
 
     # Start timer
@@ -43,7 +47,7 @@ def scrape(league):
 
     # Scrape player IDs and teams from a public league
     data = set()
-    groups = ["QB", "WR", "RB", "TE", "K", "DEF"]
+    groups = SEARCH_PLAYER_GROUPS_IDP if is_IDP else SEARCH_PLAYER_GROUPS
     s = create_session()
     for group in groups:
         logger.info("Scraping all {}...".format(group))
@@ -53,7 +57,7 @@ def scrape(league):
             s.headers["User-Agent"] = generate_user_agent()
             r = s.get(
                 "https://football.fantasysports.yahoo.com/f1/{}/players".format(
-                    PUBLIC_LEAGUE
+                    PUBLIC_LEAGUE_IDP if is_IDP else PUBLIC_LEAGUE
                 ),
                 params=dict(
                     count=i * 25,
@@ -66,6 +70,8 @@ def scrape(league):
             i += 1
             soup = bs(r.text, "lxml")
             table = soup.select_one("#players-table table")
+            if not table:
+                break
             rows = table.select("tbody tr")
             if not rows:
                 break

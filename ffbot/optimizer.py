@@ -1,6 +1,7 @@
 from collections import Counter
 
 import pandas as pd
+from loguru import logger
 from pulp import (
     PULP_CBC_CMD,
     LpBinary,
@@ -32,13 +33,28 @@ def optimize(df, week, team, positions):
     # Game rules
     positions = [x.strip() for x in positions.split(",")]
     PossiblePositions = dict(
-        QB={"QB"},
-        WR={"WR", "W/R/T"},
-        RB={"RB", "W/R/T"},
-        TE={"TE", "W/R/T"},
+        QB={"QB", "Q/W/R/T"},
+        WR={"WR", "W/R/T", "W/T", "W/R", "Q/W/R/T"},
+        RB={"RB", "W/R/T", "W/R", "Q/W/R/T"},
+        TE={"TE", "W/R/T", "W/T", "Q/W/R/T"},
         K={"K"},
-        DEF={"DEF"},
+        DEF={"DEF", "D/ST"},
+        # IDP positions
+        CB={"CB", "D", "DB"},
+        DE={"D", "DE", "DL"},
+        DT={"D", "DL", "DT"},
+        LB={"D", "LB"},
+        S={"D", "DB", "S"},
     )
+    #  Remove positions not available in this league
+    for key, values in PossiblePositions.items():
+        PossiblePositions[key] = set(
+            position for position in values if position in positions
+        )
+    PossiblePositions = {
+        key: values for key, values in PossiblePositions.items() if values
+    }
+    #  Players that can play multiple positions
     for position in df["Position"].unique():
         if position not in PossiblePositions:
             # There is a player that can play multiple positions, so consider those options too
@@ -99,6 +115,7 @@ def optimize(df, week, team, positions):
         for n in POSITIONS
         if (p, n) in PlayerPosition
     ]
+    logger.info("Optimizer pre-processed data")
 
     # Define optimization problem
     prob = LpProblem("football", LpMaximize)
@@ -152,6 +169,7 @@ def optimize(df, week, team, positions):
                 lpSum(assign[p, t, n] for p in PLAYERS if (p, n) in PlayerPosition)
                 <= PositionMax[n]
             )
+    logger.info("Optimizer starting...")
 
     # Solve optimization problem
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
@@ -316,4 +334,5 @@ def optimize(df, week, team, positions):
     df_opt = pd.DataFrame(solutions, columns=solutions_headers)
     df_opt = df_opt.round(2)
     df_opt.fillna("", inplace=True)
+    logger.info("Optimizer finished")
     return df_opt
