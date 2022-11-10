@@ -1,7 +1,7 @@
 from collections import Counter
 
-from loguru import logger
 import pandas as pd
+from loguru import logger
 from pulp import (
     PULP_CBC_CMD,
     LpBinary,
