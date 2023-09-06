@@ -11,8 +11,8 @@ from urllib3.util import Retry
 from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 76554
-PUBLIC_LEAGUE_IDP = 22621
+PUBLIC_LEAGUE = 16
+PUBLIC_LEAGUE_IDP = 762
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
