@@ -158,6 +158,12 @@ def scrape(league, is_IDP: bool = False):
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
     means = available.groupby(["Position"])["Remaining"].nlargest(3).mean(level=0)
+    for positions in means.index:
+        if "," in positions:
+            for position in positions.split(","):
+                position = position.strip()
+                if position not in means:
+                    means[position] = means[positions]
     df["VOR"] = df.apply(
         lambda row: row["Remaining"]
         - max(means[n.strip()] for n in row["Position"].split(",")),
