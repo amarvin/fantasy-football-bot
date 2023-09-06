@@ -11,8 +11,8 @@ from urllib3.util import Retry
 from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 76554
-PUBLIC_LEAGUE_IDP = 22621
+PUBLIC_LEAGUE = 16
+PUBLIC_LEAGUE_IDP = 762
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
@@ -158,6 +158,12 @@ def scrape(league, is_IDP: bool = False):
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
     means = available.groupby(["Position"])["Remaining"].nlargest(3).mean(level=0)
+    for positions in means.index:
+        if "," in positions:
+            for position in positions.split(","):
+                position = position.strip()
+                if position not in means:
+                    means[position] = means[positions]
     df["VOR"] = df.apply(
         lambda row: row["Remaining"]
         - max(means[n.strip()] for n in row["Position"].split(",")),
