@@ -1,7 +1,7 @@
 # fantasy-football-bot (ffbot)
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/ffbot.svg)](https://pypi.org/project/ffbot/)
-[![PyPI downloads](https://pepy.tech/badge/ffbot)](https://pepy.tech/project/ffbot)
+[![PyPI downloads](https://static.pepy.tech/badge/ffbot)](https://pepy.tech/project/ffbot)
 [![License](https://img.shields.io/github/license/amarvin/fantasy-football-bot)](https://github.com/amarvin/fantasy-football-bot/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
