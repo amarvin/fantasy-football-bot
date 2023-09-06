@@ -60,7 +60,9 @@ def optimize(df, week, team, positions):
             # There is a player that can play multiple positions, so consider those options too
             PossiblePositions[position] = set()
             for n in position.split(","):
-                PossiblePositions[position].update(PossiblePositions[n.strip()])
+                n = n.strip()
+                if n in PossiblePositions:
+                    PossiblePositions[position].update(PossiblePositions[n])
     PositionMax = Counter(positions)
     POSITIONS = PositionMax.keys()
 
