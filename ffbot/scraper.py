@@ -158,7 +158,9 @@ def scrape(league, is_IDP: bool = False):
     columns = ["Week {}".format(i) for i in range(current_week(), 18)]
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
-    means = available.groupby(["Position"])["Remaining"].nlargest(3).mean(level=0)
+    means = (
+        available.groupby(["Position"])["Remaining"].nlargest(3).groupby(level=0).mean()
+    )
     for positions in means.index:
         if "," in positions:
             for position in positions.split(","):
