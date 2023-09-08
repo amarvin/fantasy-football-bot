@@ -1,4 +1,5 @@
 from datetime import datetime
+from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -123,7 +124,7 @@ def scrape(league, is_IDP: bool = False):
         row["% Owned"] = playerinfo.select_one("dd.owned").text.split()[0]
 
         # Weekly projections
-        df2 = pd.read_html(html)[0]
+        df2 = pd.read_html(StringIO(html))[0]
         for _, row2 in df2.iterrows():
             week = "Week {}".format(row2["Week"])
             points = row2["Fan Pts"]
