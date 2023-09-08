@@ -76,7 +76,7 @@ Only one Waiver claim (for Jordon Howard) increases discounted points.
 
 ## Contribution
 
-Please add Issues or submit Pull requests!
+Please add Issues or submit Pull Requests!
 
 For local development, install optional testing dependencies and pre-commit hooks using
 
