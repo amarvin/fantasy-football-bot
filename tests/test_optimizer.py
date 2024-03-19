@@ -9,7 +9,6 @@ def test_optimize():
     df, week = ffbot.load(SCRAPER_FILE)
     assert week == 4
     df_opt = ffbot.optimize(df, week, TEAM, POSITIONS)
-    # fmt: off
     desired_df_opt = """                                Add              Drop Total points Discounted points    VOR
 0                                     Player 200 (WR)                                      
 1                  <current roster>                        1723.27             420.2  515.9
@@ -21,5 +20,4 @@ def test_optimize():
 7  Player 90 (WR) - Waivers (Jan 2)                           9.45              3.23  17.22
 8                                     Player 132 (WR)          0.0               0.0    0.0
 9      Player 129 (QB) - Free Agent   Player 174 (WR)        14.53              0.85  11.16"""  # noqa: W291
-    # fmt: on
     assert df_opt.to_string() == desired_df_opt
