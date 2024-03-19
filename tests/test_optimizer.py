@@ -11,7 +11,7 @@ def test_optimize():
     df_opt = ffbot.optimize(df, week, TEAM, POSITIONS)
     # fmt: off
     desired_df_opt = """                                Add              Drop Total points Discounted points    VOR
-0                                     Player 200 (WR)                                      
+0                                     Player 200 (WR)
 1                  <current roster>                        1723.27             420.2  515.9
 2                   Player 221 (TE)                           6.11              0.58 -19.01
 3                  Player 143 (DEF)   Player 101 (QB)       -10.41              2.33 -16.19
