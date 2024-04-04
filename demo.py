@@ -1,6 +1,5 @@
 import ffbot
 
-
 # Yahoo league/team id
 # Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url will also include your league and team ID
 LEAGUE = 123456
@@ -10,6 +9,8 @@ week = ffbot.current_week()
 
 # Scrape data for current and available players, and their point forecasts for each week
 df = ffbot.scrape(LEAGUE)
+# If playing an Individual Defensive Player (IDP) league, then scrape additional players with:
+# df = ffbot.scrape(LEAGUE, is_IDP=True)
 
 # Optional save data to CSV, and load latest data
 # ffbot.save(df, week)

@@ -1,9 +1,10 @@
 # fantasy-football-bot (ffbot)
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/ffbot.svg)](https://pypi.org/project/ffbot/)
-[![PyPI downloads](https://pepy.tech/badge/ffbot)](https://pepy.tech/project/ffbot)
+[![PyPI downloads](https://static.pepy.tech/badge/ffbot)](https://pepy.tech/project/ffbot)
 [![License](https://img.shields.io/github/license/amarvin/fantasy-football-bot)](https://github.com/amarvin/fantasy-football-bot/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![codecov](https://codecov.io/gh/amarvin/fantasy-football-bot/branch/main/graph/badge.svg?token=CH6M9DR7VX)](https://codecov.io/gh/amarvin/fantasy-football-bot)
 
 Automate playing Yahoo Fantasy Football
@@ -23,7 +24,7 @@ pip install ffbot
 ### Scrape player forecasts
 
 To connect to your Yahoo league and team, you need your league ID and team ID.
-Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url will also include your league and team ID.
+Visit your team at <https://football.fantasysports.yahoo.com/f1/>, and the url will also include your league and team ID.
 
 ```python
 >>> LEAGUE = 123456
@@ -31,6 +32,8 @@ Visit your team at https://football.fantasysports.yahoo.com/f1/, and the url wil
 >>> POSITIONS = "QB, WR, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, IR"
 >>> week = ffbot.current_week()
 >>> df = ffbot.scrape(LEAGUE)
+>>> # If playing an Individual Defensive Player (IDP) league, then scrape additional players with:
+>>> # df = ffbot.scrape(LEAGUE, is_IDP=True)
 Scraping all QB...
 Scraping all WR...
 Scraping all RB...
@@ -73,10 +76,11 @@ Only one Waiver claim (for Jordon Howard) increases discounted points.
 
 ## Contribution
 
-Please add Issues or submit Pull requests!
+Please add Issues or submit Pull Requests!
 
-For local development, install optional testing dependencies using
+For local development, install optional testing dependencies and pre-commit hooks using
 
 ```sh
 pip install ffbot[test]
+pre-commit install
 ```

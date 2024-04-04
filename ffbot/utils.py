@@ -1,7 +1,7 @@
+import re
 from datetime import datetime
 from os import listdir, makedirs
 from os.path import exists, getctime, isfile, join, split
-import re
 
 import pandas as pd
 

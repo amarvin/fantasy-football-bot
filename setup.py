@@ -1,9 +1,9 @@
 from io import open
 from os import path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 from ffbot.constants import VERSION
-
 
 here = path.abspath(path.dirname(__file__))
 
@@ -32,7 +32,7 @@ setup(
     author="Alex Marvin",
     author_email="alex.marvin@gmail.com",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
     ],

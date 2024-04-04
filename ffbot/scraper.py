@@ -1,24 +1,30 @@
 from datetime import datetime
+from io import StringIO
 
-from bs4 import BeautifulSoup as bs
-from loguru import logger
 import numpy as np
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup as bs
+from loguru import logger
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from urllib3.util import Retry
 from user_agent import generate_user_agent
 
-
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 39452
+PUBLIC_LEAGUE = 16
+PUBLIC_LEAGUE_IDP = 762
+SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
+SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
 
 def create_session():
     """Create requests session with retries and random user-agent"""
     s = requests.Session()
     s.headers = {
+        "Accept": "text/html",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US",
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         "User-Agent": generate_user_agent(),
     }
@@ -30,10 +36,11 @@ def create_session():
     return s
 
 
-def scrape(league):
+def scrape(league, is_IDP: bool = False):
     """Scrape data
 
     :param league: league ID
+    :param is_IDP: (bool) is this a individual defense player (IDP) league?
     """
 
     # Start timer
@@ -41,7 +48,7 @@ def scrape(league):
 
     # Scrape player IDs and teams from a public league
     data = set()
-    groups = ["QB", "WR", "RB", "TE", "K", "DEF"]
+    groups = SEARCH_PLAYER_GROUPS_IDP if is_IDP else SEARCH_PLAYER_GROUPS
     s = create_session()
     for group in groups:
         logger.info("Scraping all {}...".format(group))
@@ -51,7 +58,7 @@ def scrape(league):
             s.headers["User-Agent"] = generate_user_agent()
             r = s.get(
                 "https://football.fantasysports.yahoo.com/f1/{}/players".format(
-                    PUBLIC_LEAGUE
+                    PUBLIC_LEAGUE_IDP if is_IDP else PUBLIC_LEAGUE
                 ),
                 params=dict(
                     count=i * 25,
@@ -64,12 +71,14 @@ def scrape(league):
             i += 1
             soup = bs(r.text, "lxml")
             table = soup.select_one("#players-table table")
+            if not table:
+                break
             rows = table.select("tbody tr")
             if not rows:
                 break
             for row in rows:
                 td = row.select("td")[1]
-                ID = td.select_one("span.player-status a")["data-ys-playerid"]
+                ID = td.select_one(".player-status a")["data-ys-playerid"]
                 ID = int(ID)
                 team = td.select_one(".ysf-player-name span").text
                 team = team.split()[0]
@@ -115,7 +124,7 @@ def scrape(league):
         row["% Owned"] = playerinfo.select_one("dd.owned").text.split()[0]
 
         # Weekly projections
-        df2 = pd.read_html(html)[0]
+        df2 = pd.read_html(StringIO(html))[0]
         for _, row2 in df2.iterrows():
             week = "Week {}".format(row2["Week"])
             points = row2["Fan Pts"]
@@ -149,7 +158,15 @@ def scrape(league):
     columns = ["Week {}".format(i) for i in range(current_week(), 18)]
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
-    means = available.groupby(["Position"])["Remaining"].nlargest(3).mean(level=0)
+    means = (
+        available.groupby(["Position"])["Remaining"].nlargest(3).groupby(level=0).mean()
+    )
+    for positions in means.index:
+        if "," in positions:
+            for position in positions.split(","):
+                position = position.strip()
+                if position not in means:
+                    means[position] = means[positions]
     df["VOR"] = df.apply(
         lambda row: row["Remaining"]
         - max(means[n.strip()] for n in row["Position"].split(",")),

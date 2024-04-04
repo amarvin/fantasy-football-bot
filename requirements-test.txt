@@ -1,4 +1,6 @@
 black
 flake8
+isort[colors]
+pre-commit
 pytest
 pytest-cov

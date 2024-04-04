@@ -109,3 +109,4 @@ chromedriver.exe
 .idea
 credentials.json
 *.mps
+.vscode

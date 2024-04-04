@@ -1,7 +1,8 @@
 import pandas as pd
 
-from . import POSITIONS, SCRAPER_FILE, TEAM
 import ffbot
+
+from . import POSITIONS, SCRAPER_FILE, TEAM
 
 
 def test_optimize():
