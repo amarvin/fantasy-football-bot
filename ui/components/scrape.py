@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
-import ffbot
+from app import app
 from dash import Input, Output, dash_table, html
 
-from app import app
+import ffbot
 
 scrape = html.Div(
     [

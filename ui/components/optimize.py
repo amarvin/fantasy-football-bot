@@ -1,10 +1,10 @@
 import dash_bootstrap_components as dbc
-import ffbot
 import pandas as pd
+from app import POSITIONS, TEAM, app
 from dash import Input, Output, State, dash_table, html
 from dash.dash_table.Format import Format, Scheme
 
-from app import POSITIONS, TEAM, app
+import ffbot
 
 optimize = html.Div(
     [
@@ -43,13 +43,15 @@ def run_optimize(_, data, week):
     # Run optimizer
     df_opt = ffbot.optimize(df, week, TEAM, POSITIONS)
     columns_opt = [
-        dict(id=i, name=i)
-        if i in ["Add", "Drop"]
-        else dict(
-            format=Format(precision=2, scheme=Scheme.fixed),
-            id=i,
-            name=i,
-            type="numeric",
+        (
+            dict(id=i, name=i)
+            if i in ["Add", "Drop"]
+            else dict(
+                format=Format(precision=2, scheme=Scheme.fixed),
+                id=i,
+                name=i,
+                type="numeric",
+            )
         )
         for i in df_opt.columns
     ]
