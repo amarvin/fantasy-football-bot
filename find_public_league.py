@@ -9,7 +9,9 @@ s = create_session()
 
 found_public, found_public_idp = False, False
 for public_league in range(0, 1000):
-    url = "https://football.fantasysports.yahoo.com/f1/{}/settings".format(public_league)
+    url = "https://football.fantasysports.yahoo.com/f1/{}/settings".format(
+        public_league
+    )
     s.headers["User-Agent"] = generate_user_agent()
     r = s.get(url)
 
