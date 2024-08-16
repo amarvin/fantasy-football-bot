@@ -33,6 +33,21 @@ for public_league in range(0, 1000):
         found_public = True
         print(f"{public_league} is a valid public league")
     elif "DB" in positions:
+        # Confirm players list is accessible
+        url = "https://football.fantasysports.yahoo.com/f1/{}/players".format(
+            public_league
+        )
+        s.headers["User-Agent"] = generate_user_agent()
+        r = s.get(url)
+        try:
+            dfs = read_html(StringIO(r.text))
+        except ValueError as e:
+            if str(e) == "No tables found":
+                print(f"{public_league} is not a valid public IDP league")
+                sleep(10)
+                continue
+            else:
+                raise e
         found_public_idp = True
         print(f"{public_league} is a valid public IDP league")
 
