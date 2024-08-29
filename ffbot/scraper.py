@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from io import StringIO
 
@@ -188,8 +189,9 @@ def current_week():
     s.headers["User-Agent"] = generate_user_agent()
     r = s.get(url)
     soup = bs(r.text, "lxml")
-    span = soup.select_one("li.Navitem.current a.Navtarget")
-    week = span.text.split()[1]
+    matchups = soup.select_one("#matchupweek .matchups-body")
+    weeks = re.findall(r"Week (\d+)", matchups.text)
+    week = weeks[0]
     week = int(week)
 
     return week
