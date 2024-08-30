@@ -128,8 +128,10 @@ def scrape(league, is_IDP: bool = False):
         df2 = pd.read_html(StringIO(html))[0]
         for _, row2 in df2.iterrows():
             week = "Week {}".format(row2["Week"])
-            points = row2["Fan Pts"]
-            if points[0] == "*":
+            points = row2.get("Fan Pts")
+            if points is None:
+                continue
+            elif points[0] == "*":
                 # Game hasn't occured yet
                 row[week] = float(points[1:])
                 # row[week + ' projection'] = float(points[1:])
@@ -149,6 +151,9 @@ def scrape(league, is_IDP: bool = False):
 
     tqdm.pandas(desc="Scraping weekly forecasts")
     df = df.progress_apply(get_projections, axis=1)
+
+    # Remove players without projections
+    df = df[~pd.isna(df["Week 1"])]
 
     # Reorder columns
     columns = list(df.columns)
