@@ -190,13 +190,13 @@ def current_week():
 
     # Parse current week from a public league
     s = create_session()
-    url = "https://football.fantasysports.yahoo.com/f1/{}".format(PUBLIC_LEAGUE)
+    url = "https://football.fantasysports.yahoo.com/f1/{}/1".format(PUBLIC_LEAGUE)
     s.headers["User-Agent"] = generate_user_agent()
     r = s.get(url)
     soup = bs(r.text, "lxml")
-    matchups = soup.select_one("#matchupweek .matchups-body")
-    weeks = re.findall(r"Week (\d+)", matchups.text)
-    week = weeks[0]
+    REGEX_PATTERN = r"Week (\d+)"
+    m = re.search(REGEX_PATTERN, soup.text)
+    week = m.group(1)
     week = int(week)
 
     return week
