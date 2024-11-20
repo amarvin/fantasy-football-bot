@@ -81,7 +81,7 @@ def scrape(league, is_IDP: bool = False):
                 td = row.select("td")[1]
                 ID = td.select_one(".player-status a")["data-ys-playerid"]
                 ID = int(ID)
-                team = td.select_one(".ysf-player-name span").text
+                team = td.select_one(".ysf-player-name .D-b span").text
                 team = team.split()[0]
                 data.add((ID, team))
 
