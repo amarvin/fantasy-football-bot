@@ -14,7 +14,7 @@ from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
 PUBLIC_LEAGUE = 101
-PUBLIC_LEAGUE_IDP = 413
+PUBLIC_LEAGUE_IDP = 283
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
