@@ -14,7 +14,7 @@ from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
 PUBLIC_LEAGUE = 101
-PUBLIC_LEAGUE_IDP = 413
+PUBLIC_LEAGUE_IDP = 283
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
@@ -78,10 +78,9 @@ def scrape(league, is_IDP: bool = False):
             if not rows:
                 break
             for row in rows:
-                td = row.select("td")[1]
-                ID = td.select_one(".player-status a")["data-ys-playerid"]
+                ID = row.select_one(".player-status a")["data-ys-playerid"]
                 ID = int(ID)
-                team = td.select_one(".ysf-player-name .D-b span").text
+                team = row.select_one(".ysf-player-name .D-b span").text
                 team = team.split()[0]
                 data.add((ID, team))
 
