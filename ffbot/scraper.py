@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from io import StringIO
 
@@ -12,8 +13,8 @@ from urllib3.util import Retry
 from user_agent import generate_user_agent
 
 # A public league for current week and player IDs
-PUBLIC_LEAGUE = 16
-PUBLIC_LEAGUE_IDP = 762
+PUBLIC_LEAGUE = 101
+PUBLIC_LEAGUE_IDP = 283
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
@@ -77,10 +78,9 @@ def scrape(league, is_IDP: bool = False):
             if not rows:
                 break
             for row in rows:
-                td = row.select("td")[1]
-                ID = td.select_one(".player-status a")["data-ys-playerid"]
+                ID = row.select_one(".player-status a")["data-ys-playerid"]
                 ID = int(ID)
-                team = td.select_one(".ysf-player-name span").text
+                team = row.select_one(".ysf-player-name .D-b span").text
                 team = team.split()[0]
                 data.add((ID, team))
 
@@ -127,8 +127,10 @@ def scrape(league, is_IDP: bool = False):
         df2 = pd.read_html(StringIO(html))[0]
         for _, row2 in df2.iterrows():
             week = "Week {}".format(row2["Week"])
-            points = row2["Fan Pts"]
-            if points[0] == "*":
+            points = row2.get("Fan Pts")
+            if points is None:
+                continue
+            elif points[0] == "*":
                 # Game hasn't occured yet
                 row[week] = float(points[1:])
                 # row[week + ' projection'] = float(points[1:])
@@ -148,6 +150,9 @@ def scrape(league, is_IDP: bool = False):
 
     tqdm.pandas(desc="Scraping weekly forecasts")
     df = df.progress_apply(get_projections, axis=1)
+
+    # Remove players without projections
+    df = df[~pd.isna(df["Week 1"])]
 
     # Reorder columns
     columns = list(df.columns)
@@ -184,12 +189,13 @@ def current_week():
 
     # Parse current week from a public league
     s = create_session()
-    url = "https://football.fantasysports.yahoo.com/f1/{}".format(PUBLIC_LEAGUE)
+    url = "https://football.fantasysports.yahoo.com/f1/{}/1".format(PUBLIC_LEAGUE)
     s.headers["User-Agent"] = generate_user_agent()
     r = s.get(url)
     soup = bs(r.text, "lxml")
-    span = soup.select_one("li.Navitem.current a.Navtarget")
-    week = span.text.split()[1]
+    REGEX_PATTERN = r"Week (\d+)"
+    m = re.search(REGEX_PATTERN, soup.text)
+    week = m.group(1)
     week = int(week)
 
     return week
