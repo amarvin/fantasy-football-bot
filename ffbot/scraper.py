@@ -130,16 +130,16 @@ def scrape(league, is_IDP: bool = False):
             points = row2.get("Fan Pts")
             if points is None:
                 continue
+            elif pd.isna(points) or points == "-":
+                # Bye week
+                row[week] = 0
+                # row[week + ' projection'] = 0
+                # row[week + ' actual'] = 0
             elif points[0] == "*":
                 # Game hasn't occured yet
                 row[week] = float(points[1:])
                 # row[week + ' projection'] = float(points[1:])
                 # row[week + ' actual'] = np.nan
-            elif points == "-":
-                # Bye week
-                row[week] = 0
-                # row[week + ' projection'] = 0
-                # row[week + ' actual'] = 0
             else:
                 # Game completed
                 row[week] = float(points)
