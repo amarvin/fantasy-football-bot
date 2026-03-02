@@ -335,6 +335,10 @@ def optimize(df, week, team, positions):
 
     df_opt = pd.DataFrame(solutions, columns=solutions_headers)
     df_opt = df_opt.round(2)
+    for col, dtype in df_opt.dtypes.items():
+        if dtype != "string":
+            # Allow missing values
+            df_opt[col] = df_opt[col].astype("object")
     df_opt.fillna("", inplace=True)
     logger.info("Optimizer finished")
     return df_opt
