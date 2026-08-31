@@ -1,2 +1,3 @@
 [tool.isort]
+color_output = true
 profile = "black"
