@@ -38,7 +38,7 @@ setup(
     ],
     keywords="fantasy-football bot yahoo",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
-    python_requires=">=3.0",
+    python_requires=">=3.8",
     install_requires=get_requirements(),
     extra_require={
         "test": get_requirements("test"),
