@@ -21,7 +21,7 @@ IR_STATUSES = {
     "O",
     "PUP",  # e.g. PUP-R
 }
-SOLVER_SETTINGS = PULP_CBC_CMD(msg=0)
+SOLVER_SETTINGS = PULP_CBC_CMD(msg=False)
 
 
 def optimize(df, week, team, positions):
