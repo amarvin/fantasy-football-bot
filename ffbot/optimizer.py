@@ -1,6 +1,7 @@
 from collections import Counter
 
 import pandas as pd
+import pulp
 from loguru import logger
 from pulp import (
     LpBinary,
@@ -8,7 +9,6 @@ from pulp import (
     LpMaximize,
     LpProblem,
     LpSolverDefault,
-    LpStatus,
     LpVariable,
     lpSum,
     value,
@@ -177,7 +177,7 @@ def optimize(df, week, team, positions):
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
     solutions = []
     prob.solve(LpSolverDefault)
-    assert LpStatus[prob.status] == "Optimal"
+    assert pulp.LpStatus[prob.status] == "Optimal"
     known_drops = set()
     n_drops = 0
     for p in PLAYERS:
@@ -202,7 +202,7 @@ def optimize(df, week, team, positions):
     while True:
         prob.constraints["max_adds"].constant = -n_adds
         prob.solve(LpSolverDefault)
-        assert LpStatus[prob.status] == "Optimal"
+        assert pulp.LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -234,7 +234,7 @@ def optimize(df, week, team, positions):
         n_drops += 1
         prob.constraints["max_drops"].constant = -n_drops
         prob.solve(LpSolverDefault)
-        assert LpStatus[prob.status] == "Optimal"
+        assert pulp.LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
@@ -271,7 +271,7 @@ def optimize(df, week, team, positions):
     while True:
         prob.constraints["max_adds"].constant = -n_adds
         prob.solve(LpSolverDefault)
-        assert LpStatus[prob.status] == "Optimal"
+        assert pulp.LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -302,7 +302,7 @@ def optimize(df, week, team, positions):
     while True:
         prob.constraints["max_drops"].constant = -n_drops
         prob.solve(LpSolverDefault)
-        assert LpStatus[prob.status] == "Optimal"
+        assert pulp.LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
