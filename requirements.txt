@@ -1,4 +1,5 @@
 beautifulsoup4
+cbcbox; pulp >= "4.0.0"  # pulp v4 stopped including CBC solver
 loguru
 lxml
 pandas
