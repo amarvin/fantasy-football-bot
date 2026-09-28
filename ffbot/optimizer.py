@@ -3,7 +3,6 @@ from collections import Counter
 import pandas as pd
 from loguru import logger
 from pulp import (
-    PULP_CBC_CMD,
     LpBinary,
     LpContinuous,
     LpMaximize,
@@ -21,7 +20,8 @@ IR_STATUSES = {
     "O",
     "PUP",  # e.g. PUP-R
 }
-SOLVER_SETTINGS = PULP_CBC_CMD(msg=False)
+SOLVER_SETTINGS = pulp.LpSolverDefault
+SOLVER_SETTINGS.msg = False
 
 
 def optimize(df, week, team, positions):
