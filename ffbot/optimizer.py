@@ -201,7 +201,7 @@ def optimize(df, week, team, positions):
     n_adds = 1
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(SOLVER_SETTINGS)
+        prob.solve(LpSolverDefault)
         assert LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
@@ -233,7 +233,7 @@ def optimize(df, week, team, positions):
     while True:
         n_drops += 1
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(SOLVER_SETTINGS)
+        prob.solve(LpSolverDefault)
         assert LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
@@ -270,7 +270,7 @@ def optimize(df, week, team, positions):
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(SOLVER_SETTINGS)
+        prob.solve(LpSolverDefault)
         assert LpStatus[prob.status] == "Optimal"
         this_add = ""
         for p in PLAYERS:
@@ -301,7 +301,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(SOLVER_SETTINGS)
+        prob.solve(LpSolverDefault)
         assert LpStatus[prob.status] == "Optimal"
         this_drop = ""
         this_add = ""
