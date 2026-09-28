@@ -7,6 +7,7 @@ from pulp import (
     LpContinuous,
     LpMaximize,
     LpProblem,
+    LpSolverDefault,
     LpStatus,
     LpVariable,
     lpSum,
@@ -20,8 +21,7 @@ IR_STATUSES = {
     "O",
     "PUP",  # e.g. PUP-R
 }
-SOLVER_SETTINGS = pulp.LpSolverDefault
-SOLVER_SETTINGS.msg = False
+LpSolverDefault.msg = False
 
 
 def optimize(df, week, team, positions):
@@ -176,7 +176,7 @@ def optimize(df, week, team, positions):
     # Solve optimization problem
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
     solutions = []
-    prob.solve(SOLVER_SETTINGS)
+    prob.solve(LpSolverDefault)
     assert LpStatus[prob.status] == "Optimal"
     known_drops = set()
     n_drops = 0
