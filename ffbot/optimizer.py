@@ -9,7 +9,6 @@ from pulp import (
     LpMaximize,
     LpProblem,
     LpSolverDefault,
-    LpVariable,
     lpSum,
     value,
 )
@@ -122,14 +121,20 @@ def optimize(df, week, team, positions):
     # Define optimization problem
     prob = LpProblem("football", LpMaximize)
 
+    # Support pulp v4
+    if hasattr(pulp, "LpVariable"):
+        _add_variable_dicts = pulp.LpVariable.dicts
+    else:
+        _add_variable_dicts = prob.add_variable_dicts
+
     # Define decision variables
-    roster = LpVariable.dicts("roster", PLAYERS, cat=LpBinary)
-    add = LpVariable.dicts("add", PLAYERS, cat=LpBinary)
-    drop = LpVariable.dicts("drop", PLAYERS, cat=LpBinary)
-    assign = LpVariable.dicts("assign", PlayerTimePosition, cat=LpBinary)
-    points = LpVariable.dicts("points", PlayerTime, cat=LpContinuous)
-    points_total = LpVariable.dicts("points total", PLAYERS, cat=LpContinuous)
-    discounted_points_total = LpVariable.dicts(
+    roster = _add_variable_dicts("roster", PLAYERS, cat=LpBinary)
+    add = _add_variable_dicts("add", PLAYERS, cat=LpBinary)
+    drop = _add_variable_dicts("drop", PLAYERS, cat=LpBinary)
+    assign = _add_variable_dicts("assign", PlayerTimePosition, cat=LpBinary)
+    points = _add_variable_dicts("points", PlayerTime, cat=LpContinuous)
+    points_total = _add_variable_dicts("points total", PLAYERS, cat=LpContinuous)
+    discounted_points_total = _add_variable_dicts(
         "discounted points total", PLAYERS, cat=LpContinuous
     )
 
