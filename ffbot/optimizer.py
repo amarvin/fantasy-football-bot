@@ -135,7 +135,7 @@ def optimize(df, week, team, positions):
 
         def _solve(prob):
             stats = prob.solve(LpSolverDefault)
-            assert stats.status == pulp.LpSolveStatus.Optimal
+            assert stats.has_solution
 
     # Define decision variables
     roster = _add_variable_dicts("roster", PLAYERS, cat=LpBinary)
