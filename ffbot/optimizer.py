@@ -125,12 +125,14 @@ def optimize(df, week, team, positions):
     try:
         # PuLP v3
         _add_variable_dicts = pulp.LpVariable.dicts
+
         def _solve(prob):
             prob.solve(LpSolverDefault)
             assert prob.status == pulp.LpStatusOptimal
     except AttributeError:
         # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
+
         def _solve(prob):
             stats = prob.solve(LpSolverDefault)
             assert stats.status == pulp.LpSolveStatus.Optimal
