@@ -125,9 +125,15 @@ def optimize(df, week, team, positions):
     try:
         # PuLP v3
         _add_variable_dicts = pulp.LpVariable.dicts
+        def _solve(prob):
+            prob.solve(LpSolverDefault)
+            assert pulp.LpStatus[prob.status] == "Optimal"
     except AttributeError:
         # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
+        def _solve(prob):
+            stats = prob.solve(LpSolverDefault)
+            assert stats.status_str == "Optimal"
 
     # Define decision variables
     roster = _add_variable_dicts("roster", PLAYERS, cat=LpBinary)
@@ -183,8 +189,7 @@ def optimize(df, week, team, positions):
     # Solve optimization problem
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
     solutions = []
-    prob.solve(LpSolverDefault)
-    assert pulp.LpStatus[prob.status] == "Optimal"
+    _solve(prob)
     known_drops = set()
     n_drops = 0
     for p in PLAYERS:
@@ -208,8 +213,7 @@ def optimize(df, week, team, positions):
     n_adds = 1
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(LpSolverDefault)
-        assert pulp.LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -240,8 +244,7 @@ def optimize(df, week, team, positions):
     while True:
         n_drops += 1
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(LpSolverDefault)
-        assert pulp.LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
@@ -277,8 +280,7 @@ def optimize(df, week, team, positions):
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(LpSolverDefault)
-        assert pulp.LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -308,8 +310,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(LpSolverDefault)
-        assert pulp.LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
