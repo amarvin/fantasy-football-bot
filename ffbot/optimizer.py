@@ -122,10 +122,10 @@ def optimize(df, week, team, positions):
     prob = LpProblem("football", LpMaximize)
 
     # Support PuLP v3 and v4
-    if hasattr(pulp.LpVariable, "dicts"):
+    try:
         # PuLP v3
         _add_variable_dicts = pulp.LpVariable.dicts
-    else:
+    except AttributeError:
         # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
 
