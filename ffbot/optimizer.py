@@ -127,13 +127,13 @@ def optimize(df, week, team, positions):
         _add_variable_dicts = pulp.LpVariable.dicts
         def _solve(prob):
             prob.solve(LpSolverDefault)
-            assert pulp.LpStatus[prob.status] == pulp.LpStatusOptimal
+            assert prob.status == pulp.LpStatusOptimal
     except AttributeError:
         # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
         def _solve(prob):
             stats = prob.solve(LpSolverDefault)
-            assert stats.status_str == pulp.LpSolveStatus.Optimal
+            assert stats.status == pulp.LpSolveStatus.Optimal
 
     # Define decision variables
     roster = _add_variable_dicts("roster", PLAYERS, cat=LpBinary)
