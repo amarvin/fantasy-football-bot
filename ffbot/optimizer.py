@@ -121,10 +121,12 @@ def optimize(df, week, team, positions):
     # Define optimization problem
     prob = LpProblem("football", LpMaximize)
 
-    # Support pulp v4
-    if hasattr(pulp, "LpVariable"):
+    # Support PuLP v3 and v4
+    if hasattr(pulp.LpVariable, "dicts"):
+        # PuLP v3
         _add_variable_dicts = pulp.LpVariable.dicts
     else:
+        # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
 
     # Define decision variables
