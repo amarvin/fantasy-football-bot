@@ -1,15 +1,14 @@
 from collections import Counter
 
 import pandas as pd
+import pulp
 from loguru import logger
 from pulp import (
-    PULP_CBC_CMD,
     LpBinary,
     LpContinuous,
     LpMaximize,
     LpProblem,
-    LpStatus,
-    LpVariable,
+    LpSolverDefault,
     lpSum,
     value,
 )
@@ -21,7 +20,7 @@ IR_STATUSES = {
     "O",
     "PUP",  # e.g. PUP-R
 }
-SOLVER_SETTINGS = PULP_CBC_CMD(msg=False)
+LpSolverDefault.msg = False
 
 
 def optimize(df, week, team, positions):
@@ -122,14 +121,31 @@ def optimize(df, week, team, positions):
     # Define optimization problem
     prob = LpProblem("football", LpMaximize)
 
+    # Support PuLP v3 and v4
+    try:
+        # PuLP v3
+        _add_variable_dicts = pulp.LpVariable.dicts
+
+        def _solve(prob):
+            prob.solve(LpSolverDefault)
+            assert prob.status == pulp.LpStatusOptimal
+
+    except AttributeError:
+        # PuLP v4
+        _add_variable_dicts = prob.add_variable_dicts
+
+        def _solve(prob):
+            stats = prob.solve(LpSolverDefault)
+            assert stats.has_solution
+
     # Define decision variables
-    roster = LpVariable.dicts("roster", PLAYERS, cat=LpBinary)
-    add = LpVariable.dicts("add", PLAYERS, cat=LpBinary)
-    drop = LpVariable.dicts("drop", PLAYERS, cat=LpBinary)
-    assign = LpVariable.dicts("assign", PlayerTimePosition, cat=LpBinary)
-    points = LpVariable.dicts("points", PlayerTime, cat=LpContinuous)
-    points_total = LpVariable.dicts("points total", PLAYERS, cat=LpContinuous)
-    discounted_points_total = LpVariable.dicts(
+    roster = _add_variable_dicts("roster", PLAYERS, cat=LpBinary)
+    add = _add_variable_dicts("add", PLAYERS, cat=LpBinary)
+    drop = _add_variable_dicts("drop", PLAYERS, cat=LpBinary)
+    assign = _add_variable_dicts("assign", PlayerTimePosition, cat=LpBinary)
+    points = _add_variable_dicts("points", PlayerTime, cat=LpContinuous)
+    points_total = _add_variable_dicts("points total", PLAYERS, cat=LpContinuous)
+    discounted_points_total = _add_variable_dicts(
         "discounted points total", PLAYERS, cat=LpContinuous
     )
 
@@ -176,8 +192,7 @@ def optimize(df, week, team, positions):
     # Solve optimization problem
     solutions_headers = ["Add", "Drop", "Total points", "Discounted points", "VOR"]
     solutions = []
-    prob.solve(SOLVER_SETTINGS)
-    assert LpStatus[prob.status] == "Optimal"
+    _solve(prob)
     known_drops = set()
     n_drops = 0
     for p in PLAYERS:
@@ -201,8 +216,7 @@ def optimize(df, week, team, positions):
     n_adds = 1
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(SOLVER_SETTINGS)
-        assert LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -233,8 +247,7 @@ def optimize(df, week, team, positions):
     while True:
         n_drops += 1
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(SOLVER_SETTINGS)
-        assert LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
@@ -270,8 +283,7 @@ def optimize(df, week, team, positions):
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
         prob.constraints["max_adds"].constant = -n_adds
-        prob.solve(SOLVER_SETTINGS)
-        assert LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_add = ""
         for p in PLAYERS:
             if add[p].varValue and p not in known_adds:
@@ -301,8 +313,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         prob.constraints["max_drops"].constant = -n_drops
-        prob.solve(SOLVER_SETTINGS)
-        assert LpStatus[prob.status] == "Optimal"
+        _solve(prob)
         this_drop = ""
         this_add = ""
         for p in PLAYERS:
