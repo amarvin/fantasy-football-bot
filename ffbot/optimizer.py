@@ -122,11 +122,8 @@ def optimize(df, week, team, positions):
     prob = LpProblem("football", LpMaximize)
 
     # Support PuLP v3 and v4
-    is_pulp_v4 = hasattr(prob, "add_variable_dicts") and callable(
-        getattr(prob, "add_variable_dicts")
-    )
-    if not is_pulp_v4:
-        # PuLP v3
+    is_pulp_v3 = hasattr(pulp.LpVariable, "dicts")
+    if is_pulp_v3:
         logger.info("PuLP v3 detected")
         _add_variable_dicts = pulp.LpVariable.dicts
 
@@ -138,7 +135,6 @@ def optimize(df, week, team, positions):
             assert prob.status == pulp.LpStatusOptimal
 
     else:
-        # PuLP v4
         logger.info("PuLP v4 detected")
         _add_variable_dicts = prob.add_variable_dicts
 
