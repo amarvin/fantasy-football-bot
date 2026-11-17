@@ -221,8 +221,7 @@ def optimize(df, week, team, positions):
     known_adds = set()
     n_adds = 1
     while True:
-        constraint = _get_constraint_by_name(prob, "max_adds")
-        constraint.constant = -n_adds
+        _get_constraint_by_name(prob, "max_adds").constant = -n_adds
         _solve(prob)
         this_add = ""
         for p in PLAYERS:
@@ -253,8 +252,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         n_drops += 1
-        constraint = _get_constraint_by_name(prob, "max_drops")
-        constraint.constant = -n_drops
+        _get_constraint_by_name(prob, "max_drops").constant = -n_drops
         _solve(prob)
         this_drop = ""
         this_add = ""
@@ -290,8 +288,7 @@ def optimize(df, week, team, positions):
     del prob.constraints["only_add_free_agents"]
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
-        constraint = _get_constraint_by_name(prob, "max_adds")
-        constraint.constant = -n_adds
+        _get_constraint_by_name(prob, "max_adds").constant = -n_adds
         _solve(prob)
         this_add = ""
         for p in PLAYERS:
@@ -321,8 +318,7 @@ def optimize(df, week, team, positions):
     # Re-solve for each drop to acquire a waiver claim
     del prob.constraints["max_adds"]
     while True:
-        constraint = _get_constraint_by_name(prob, "max_drops")
-        constraint.constant = -n_drops
+        _get_constraint_by_name(prob, "max_drops").constant = -n_drops
         _solve(prob)
         this_drop = ""
         this_add = ""
