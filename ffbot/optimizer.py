@@ -91,7 +91,7 @@ def optimize(df, week, team, positions):
         FreeAgent[p] = pd.isna(owner_id) and owner == "Free Agent"
         Available[p] = pd.isna(owner_id)
         for t in TIMES:
-            Projections[p, t] = float(row["Week {}".format(t)])
+            Projections[p, t] = float(row[f"Week {t}"])
         VOR[p] = row["VOR"]
     #  create other parameters
     Discounts = {

@@ -52,15 +52,13 @@ def scrape(league, is_IDP: bool = False):
     groups = SEARCH_PLAYER_GROUPS_IDP if is_IDP else SEARCH_PLAYER_GROUPS
     s = create_session()
     for group in groups:
-        logger.info("Scraping all {}...".format(group))
+        logger.info(f"Scraping all {group}...")
         i = 0
         while True:
             # Request next 25 best players
             s.headers["User-Agent"] = generate_user_agent()
             r = s.get(
-                "https://football.fantasysports.yahoo.com/f1/{}/players".format(
-                    PUBLIC_LEAGUE_IDP if is_IDP else PUBLIC_LEAGUE
-                ),
+                f"https://football.fantasysports.yahoo.com/f1/{PUBLIC_LEAGUE_IDP if is_IDP else PUBLIC_LEAGUE}/players",
                 params=dict(
                     count=i * 25,
                     pos=group,
@@ -95,7 +93,7 @@ def scrape(league, is_IDP: bool = False):
             s = create_session()
 
         pid = row["ID"]
-        url = "https://football.fantasysports.yahoo.com/f1/{}/playernote".format(league)
+        url = f"https://football.fantasysports.yahoo.com/f1/{league}/playernote"
         params = {"pid": pid}
         s.headers["User-Agent"] = generate_user_agent()
         r = s.get(url, params=params)
@@ -126,7 +124,7 @@ def scrape(league, is_IDP: bool = False):
         # Weekly projections
         df2 = pd.read_html(StringIO(html))[0]
         for _, row2 in df2.iterrows():
-            week = "Week {}".format(row2["Week"])
+            week = f"Week {row2['Week']}"
             points = row2.get("Fan Pts")
             if points is None:
                 continue
@@ -160,7 +158,7 @@ def scrape(league, is_IDP: bool = False):
     df = df[columns]
 
     # Calculate VOR
-    columns = ["Week {}".format(i) for i in range(current_week(), 18)]
+    columns = [f"Week {i}" for i in range(current_week(), 18)]
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
     means = (
@@ -180,7 +178,7 @@ def scrape(league, is_IDP: bool = False):
     df.sort_values(by="VOR", ascending=False, inplace=True)
     df = df.round(2)
 
-    logger.info("Total runtime: {}".format(datetime.now() - startTime))
+    logger.info(f"Total runtime: {datetime.now() - startTime}")
     return df
 
 
@@ -189,7 +187,7 @@ def current_week():
 
     # Parse current week from a public league
     s = create_session()
-    url = "https://football.fantasysports.yahoo.com/f1/{}/1".format(PUBLIC_LEAGUE)
+    url = f"https://football.fantasysports.yahoo.com/f1/{PUBLIC_LEAGUE}/1"
     s.headers["User-Agent"] = generate_user_agent()
     r = s.get(url)
     soup = bs(r.text, "lxml")
