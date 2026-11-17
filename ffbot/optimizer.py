@@ -154,7 +154,7 @@ def optimize(df, week, team, positions):
 
             # Re-create variables or copy problem via dictionary/JSON, or rebuild from expressions
             for c in prob.constraints():
-                if c.name != "cap":
+                if c.name != constraint_name:
                     new_prob.addConstraint(c.copy(), c.name)
 
             return new_prob
