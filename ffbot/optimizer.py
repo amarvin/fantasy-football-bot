@@ -133,10 +133,6 @@ def optimize(df, week, team, positions):
         def _get_constraint_by_name(prob, constraint_name: str):
             return prob.constraints[constraint_name]
 
-        def _delete_constraint_by_name(prob, constraint_name: str):
-            del prob.constraints[constraint_name]
-            return prob
-
         def _solve(prob):
             prob.solve(LpSolverDefault)
             assert prob.status == pulp.LpStatusOptimal
@@ -148,21 +144,6 @@ def optimize(df, week, team, positions):
 
         def _get_constraint_by_name(prob, constraint_name: str):
             return prob.get_constraint_by_name(constraint_name)
-
-        def _delete_constraint_by_name(prob, constraint_name: str):
-            new_prob = LpProblem(prob.name, prob.sense)
-
-            # Rebuild the objective function
-            if prob.objective is not None:
-                new_prob.setObjective(prob.objective)
-                new_prob.objective.name = prob.objective.name
-
-            # Rebuild constraints
-            for c in prob.constraints():
-                if c.name != constraint_name:
-                    new_prob.addConstraint(c.copy(), c.name)
-
-            return new_prob
 
         def _solve(prob):
             stats = prob.solve(LpSolverDefault)
@@ -273,7 +254,7 @@ def optimize(df, week, team, positions):
         last_vor = vor
 
     # Re-solve for each drop to acquire a free agent
-    prob = _delete_constraint_by_name(prob, "max_adds")
+    _get_constraint_by_name(prob, "max_adds").constant = -100
     while True:
         n_drops += 1
         _get_constraint_by_name(prob, "max_drops").constant = -n_drops
@@ -309,8 +290,8 @@ def optimize(df, week, team, positions):
         last_vor = vor
 
     # Re-solve for each waiver claim add without dropping any players
-    prob = _delete_constraint_by_name(prob, "only_add_free_agents")
-    prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
+    _get_constraint_by_name(prob, "only_add_free_agents").sense = pulp.LpConstraintGE
+    _get_constraint_by_name(prob, "max_adds").constant = 0
     while True:
         _get_constraint_by_name(prob, "max_adds").constant = -n_adds
         _solve(prob)
@@ -340,7 +321,7 @@ def optimize(df, week, team, positions):
         last_vor = vor
 
     # Re-solve for each drop to acquire a waiver claim
-    prob = _delete_constraint_by_name(prob, "max_adds")
+    _get_constraint_by_name(prob, "max_adds").constant = -100
     while True:
         _get_constraint_by_name(prob, "max_drops").constant = -n_drops
         _solve(prob)
