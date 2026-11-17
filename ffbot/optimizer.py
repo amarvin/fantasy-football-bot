@@ -152,7 +152,12 @@ def optimize(df, week, team, positions):
         def _delete_constraint_by_name(prob, constraint_name: str):
             new_prob = LpProblem(prob.name, prob.sense)
 
-            # Re-create variables or copy problem via dictionary/JSON, or rebuild from expressions
+            # Rebuild the objective function
+            if prob.objective is not None:
+                new_prob.setObjective(prob.objective)
+                new_prob.objective.name = prob.objective.name
+
+            # Rebuild constraints
             for c in prob.constraints():
                 if c.name != constraint_name:
                     new_prob.addConstraint(c.copy(), c.name)
