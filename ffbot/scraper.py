@@ -30,7 +30,7 @@ def create_session():
         "User-Agent": generate_user_agent(),
     }
     #  add retry loop
-    retry = Retry(backoff_factor=0.6, status_forcelist=[500, 502, 503, 504, 999])
+    retry = Retry(backoff_factor=0.6, status_forcelist=[404, 500, 502, 503, 504, 999])
     adapter = HTTPAdapter(max_retries=retry)
     s.mount("http://", adapter)
     s.mount("https://", adapter)
