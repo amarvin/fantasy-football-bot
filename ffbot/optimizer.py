@@ -31,25 +31,25 @@ def optimize(df, week, team, positions):
 
     # Game rules
     positions = [x.strip() for x in positions.split(",")]
-    PossiblePositions = dict(
-        QB={"QB", "Q/W/R/T"},
-        WR={"WR", "W/R/T", "W/T", "W/R", "Q/W/R/T"},
-        RB={"RB", "W/R/T", "W/R", "Q/W/R/T"},
-        TE={"TE", "W/R/T", "W/T", "Q/W/R/T"},
-        K={"K"},
-        DEF={"DEF", "D/ST"},
+    PossiblePositions = {
+        "QB": {"QB", "Q/W/R/T"},
+        "WR": {"WR", "W/R/T", "W/T", "W/R", "Q/W/R/T"},
+        "RB": {"RB", "W/R/T", "W/R", "Q/W/R/T"},
+        "TE": {"TE", "W/R/T", "W/T", "Q/W/R/T"},
+        "K": {"K"},
+        "DEF": {"DEF", "D/ST"},
         # IDP positions
-        CB={"CB", "D", "DB"},
-        DE={"D", "DE", "DL"},
-        DT={"D", "DL", "DT"},
-        LB={"D", "LB"},
-        S={"D", "DB", "S"},
-    )
+        "CB": {"CB", "D", "DB"},
+        "DE": {"D", "DE", "DL"},
+        "DT": {"D", "DL", "DT"},
+        "LB": {"D", "LB"},
+        "S": {"D", "DB", "S"},
+    }
     #  Remove positions not available in this league
     for key, values in PossiblePositions.items():
-        PossiblePositions[key] = set(
+        PossiblePositions[key] = {
             position for position in values if position in positions
-        )
+        }
     PossiblePositions = {
         key: values for key, values in PossiblePositions.items() if values
     }
@@ -66,17 +66,17 @@ def optimize(df, week, team, positions):
     POSITIONS = PositionMax.keys()
 
     # Pre-process data
-    TIMES = [t for t in range(week, 18)]
+    TIMES = list(range(week, 18))
     PLAYERS = set()
-    Names = dict()
-    Position = dict()
-    Roster0 = dict()
-    Owner = dict()
-    Status = dict()
-    FreeAgent = dict()
-    Available = dict()
-    Projections = dict()
-    VOR = dict()
+    Names = {}
+    Position = {}
+    Roster0 = {}
+    Owner = {}
+    Status = {}
+    FreeAgent = {}
+    Available = {}
+    Projections = {}
+    VOR = {}
     for _, row in df.iterrows():
         p = row["ID"]
         PLAYERS.add(p)
@@ -90,7 +90,7 @@ def optimize(df, week, team, positions):
         FreeAgent[p] = pd.isna(owner_id) and owner == "Free Agent"
         Available[p] = pd.isna(owner_id)
         for t in TIMES:
-            Projections[p, t] = float(row["Week {}".format(t)])
+            Projections[p, t] = float(row[f"Week {t}"])
         VOR[p] = row["VOR"]
     #  create other parameters
     Discounts = {
