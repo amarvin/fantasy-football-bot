@@ -127,7 +127,7 @@ def optimize(df, week, team, positions):
         _add_variable_dicts = pulp.LpVariable.dicts
 
         def _get_constraint_by_name(prob, constraint_name: str):
-            return prob[constraint_name]
+            return prob.constraints[constraint_name]
 
         def _solve(prob):
             prob.solve(LpSolverDefault)
