@@ -35,7 +35,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install pulp${{ matrix.pulp-version }}
+        pip install "pulp${{ matrix.pulp-version }}"
     - name: Sort imports with isort
       run: isort . --check --color --diff
     - name: Code format with black
