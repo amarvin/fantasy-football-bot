@@ -122,8 +122,10 @@ def optimize(df, week, team, positions):
     prob = LpProblem("football", LpMaximize)
 
     # Support PuLP v3 and v4
-    try:
+    is_pulp_v4 = hasattr(prob, "add_variable_dicts") and callable(getattr(prob, "add_variable_dicts"))
+    if not is_pulp_v4:
         # PuLP v3
+        logger.info("PuLP v3 detected")
         _add_variable_dicts = pulp.LpVariable.dicts
 
         def _get_constraint_by_name(prob, constraint_name: str):
@@ -133,8 +135,9 @@ def optimize(df, week, team, positions):
             prob.solve(LpSolverDefault)
             assert prob.status == pulp.LpStatusOptimal
 
-    except AttributeError:
+    else:
         # PuLP v4
+        logger.info("PuLP v4 detected")
         _add_variable_dicts = prob.add_variable_dicts
 
         def _get_constraint_by_name(prob, constraint_name: str):
