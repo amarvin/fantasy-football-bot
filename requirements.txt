@@ -3,7 +3,7 @@ cbcbox
 loguru
 lxml
 pandas
-pulp
+pulp<4.0.0
 requests
 tqdm
 user_agent
