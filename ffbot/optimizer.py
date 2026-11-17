@@ -126,6 +126,9 @@ def optimize(df, week, team, positions):
         # PuLP v3
         _add_variable_dicts = pulp.LpVariable.dicts
 
+        def _get_constraint_by_name(prob, constraint_name: str):
+            return prob[constraint_name]
+        
         def _solve(prob):
             prob.solve(LpSolverDefault)
             assert prob.status == pulp.LpStatusOptimal
@@ -133,6 +136,9 @@ def optimize(df, week, team, positions):
     except AttributeError:
         # PuLP v4
         _add_variable_dicts = prob.add_variable_dicts
+
+        def _get_constraint_by_name(prob, constraint_name: str):
+            return prob.get_constraint_by_name(constraint_name)
 
         def _solve(prob):
             stats = prob.solve(LpSolverDefault)
@@ -215,7 +221,8 @@ def optimize(df, week, team, positions):
     known_adds = set()
     n_adds = 1
     while True:
-        prob.constraints["max_adds"].constant = -n_adds
+        constraint = _get_constraint_by_name(prob, "max_adds")
+        constraint.constant = -n_adds
         _solve(prob)
         this_add = ""
         for p in PLAYERS:
@@ -246,7 +253,8 @@ def optimize(df, week, team, positions):
     del prob.constraints["max_adds"]
     while True:
         n_drops += 1
-        prob.constraints["max_drops"].constant = -n_drops
+        constraint = _get_constraint_by_name(prob, "max_drops")
+        constraint.constant = -n_drops
         _solve(prob)
         this_drop = ""
         this_add = ""
@@ -282,7 +290,8 @@ def optimize(df, week, team, positions):
     del prob.constraints["only_add_free_agents"]
     prob += 0 >= lpSum(add[p] for p in PLAYERS), "max_adds"
     while True:
-        prob.constraints["max_adds"].constant = -n_adds
+        constraint = _get_constraint_by_name(prob, "max_adds")
+        constraint.constant = -n_adds
         _solve(prob)
         this_add = ""
         for p in PLAYERS:
@@ -312,7 +321,8 @@ def optimize(df, week, team, positions):
     # Re-solve for each drop to acquire a waiver claim
     del prob.constraints["max_adds"]
     while True:
-        prob.constraints["max_drops"].constant = -n_drops
+        constraint = _get_constraint_by_name(prob, "max_drops")
+        constraint.constant = -n_drops
         _solve(prob)
         this_drop = ""
         this_add = ""
