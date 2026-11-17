@@ -128,7 +128,7 @@ def optimize(df, week, team, positions):
 
         def _get_constraint_by_name(prob, constraint_name: str):
             return prob[constraint_name]
-        
+
         def _solve(prob):
             prob.solve(LpSolverDefault)
             assert prob.status == pulp.LpStatusOptimal
