@@ -59,13 +59,13 @@ def scrape(league, is_IDP: bool = False):
             s.headers["User-Agent"] = generate_user_agent()
             r = s.get(
                 f"https://football.fantasysports.yahoo.com/f1/{PUBLIC_LEAGUE_IDP if is_IDP else PUBLIC_LEAGUE}/players",
-                params=dict(
-                    count=i * 25,
-                    pos=group,
-                    sort="PR_S",  # sort by projected season rank
-                    stat1="K_K",  # ranks
-                    status="ALL",
-                ),
+                params={
+                    "count": i * 25,
+                    "pos": group,
+                    "sort": "PR_S",  # sort by projected season rank
+                    "stat1": "K_K",  # ranks
+                    "status": "ALL",
+                },
             )
             i += 1
             soup = bs(r.text, "lxml")
