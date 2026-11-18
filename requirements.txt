@@ -1,9 +1,8 @@
 beautifulsoup4
-cbcbox
 loguru
 lxml
 pandas
-pulp
+pulp[cbc]
 requests
 tqdm
 user_agent
