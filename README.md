@@ -94,9 +94,9 @@ python .ui\index.py
 
 Then open `localhost:8050` in a web browser to see:
 
-![Scrape tab](ui/img/Scrape%20tab.png)
+![Scrape tab](https://raw.githubusercontent.com/amarvin/fantasy-football-bot/main/ui/img/Scrape%20tab.png)
 
-![Optimize tab](ui/img/Optimize%20tab.png)
+![Optimize tab](https://raw.githubusercontent.com/amarvin/fantasy-football-bot/main/ui/img/Optimize%20tab.png)
 
 ## Contribution
 
