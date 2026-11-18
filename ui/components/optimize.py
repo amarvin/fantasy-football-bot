@@ -25,12 +25,18 @@ optimize = html.Div(
         dash_table.DataTable(
             id="optimize-table",
             fill_width=False,
-            filter_action="native",
+            filter_action="none",
             page_action="native",
             page_current=0,
             page_size=10,
-            sort_action="native",
+            sort_action="none",
             style_as_list_view=True,
+            style_data_conditional=[
+                {"if": {"column_type": "text"}, "textAlign": "left"}
+            ],
+            style_header_conditional=[
+                {"if": {"column_type": "text"}, "textAlign": "left"}
+            ],
         ),
     ]
 )
@@ -59,7 +65,7 @@ def run_optimize(_, data, week):
     df_opt = ffbot.optimize(df, week, TEAM, POSITIONS)
     columns_opt = [
         (
-            dict(id=i, name=i)
+            dict(id=i, name=i, type="text")
             if i in ["Add", "Drop"]
             else dict(
                 format=Format(precision=2, scheme=Scheme.fixed),

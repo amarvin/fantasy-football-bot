@@ -3,6 +3,7 @@ from pathlib import Path
 import dash_bootstrap_components as dbc
 from app import LEAGUE, app
 from dash import Input, Output, State, ctx, dash_table, dcc, html, no_update
+from pandas.api.types import is_string_dtype
 
 import ffbot
 
@@ -71,6 +72,30 @@ scrape = html.Div(
             striped=True,
             style={"display": "none"},
         ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Dropdown(
+                        id="scrape-filter-column",
+                        placeholder="Select a column to filter",
+                        clearable=False,
+                    ),
+                    md=4,
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id="scrape-filter-values",
+                        placeholder="Select one or more values",
+                        multi=True,
+                    ),
+                    md=8,
+                ),
+            ],
+            id="scrape-filter-controls",
+            className="mb-2",
+            style={"display": "none"},
+        ),
+        dcc.Store(id="scrape-source-data"),
         html.Div(
             [
                 html.Span("Week "),
@@ -79,12 +104,18 @@ scrape = html.Div(
         ),
         dash_table.DataTable(
             id="scrape-table",
-            filter_action="native",
+            filter_action="none",
             page_action="native",
             page_current=0,
             page_size=10,
             sort_action="native",
             style_as_list_view=True,
+            style_data_conditional=[
+                {"if": {"column_type": "text"}, "textAlign": "left"}
+            ],
+            style_header_conditional=[
+                {"if": {"column_type": "text"}, "textAlign": "left"}
+            ],
             style_table={"overflowX": "auto"},
         ),
     ]
@@ -119,7 +150,7 @@ def toggle_file_picker(_, __, ___):
     Output("scrape-status", "children"),
     Output("week", "children"),
     Output("scrape-table", "columns"),
-    Output("scrape-table", "data"),
+    Output("scrape-source-data", "data"),
     Input("scrape-scrape-button", "n_clicks"),
     running=[
         (Output("scrape-progress", "style"), {"display": "block"}, {"display": "none"}),
@@ -130,7 +161,15 @@ def run_scrape(_):
     week = ffbot.current_week()
     df = ffbot.scrape(LEAGUE)
     ffbot.save(df, week)
-    columns = [dict(id=column, name=column) for column in df.columns]
+    columns = [
+        dict(
+            id=column,
+            name=column,
+            **({"type": "text"} if is_string_dtype(df[column]) else {}),
+        )
+        for column in df.columns
+        if column not in {"ID", "Owner ID"}
+    ]
     data = df.to_dict("records")
     return (
         f"Scrape complete. Data for week {week} was saved and loaded.",
@@ -144,7 +183,7 @@ def run_scrape(_):
     Output("scrape-status", "children", allow_duplicate=True),
     Output("week", "children", allow_duplicate=True),
     Output("scrape-table", "columns", allow_duplicate=True),
-    Output("scrape-table", "data", allow_duplicate=True),
+    Output("scrape-source-data", "data", allow_duplicate=True),
     Input("scrape-confirm-load", "n_clicks"),
     State("scrape-file-picker-options", "value"),
     running=[
@@ -156,6 +195,72 @@ def load_selected(_, filepath):
     if not filepath:
         return no_update, no_update, no_update, no_update
     df, week = ffbot.load(filepath)
-    columns = [dict(id=column, name=column) for column in df.columns]
+    columns = [
+        dict(
+            id=column,
+            name=column,
+            **({"type": "text"} if is_string_dtype(df[column]) else {}),
+        )
+        for column in df.columns
+        if column not in {"ID", "Owner ID"}
+    ]
     data = df.to_dict("records")
     return f"Loaded {Path(filepath).name}.", week, columns, data
+
+
+@app.callback(
+    Output("scrape-filter-controls", "style"),
+    Input("scrape-source-data", "data"),
+)
+def toggle_filter_controls(data):
+    return {"display": "block"} if data else {"display": "none"}
+
+
+@app.callback(
+    Output("scrape-filter-column", "options"),
+    Output("scrape-filter-column", "value"),
+    Input("scrape-source-data", "data"),
+    State("scrape-filter-column", "value"),
+)
+def populate_filter_columns(data, selected_column):
+    columns = (
+        [column for column in data[0] if column not in {"ID", "Owner ID"}]
+        if data
+        else []
+    )
+    options = [{"label": column, "value": column} for column in columns]
+    if selected_column not in columns:
+        selected_column = columns[0] if columns else None
+    return options, selected_column
+
+
+@app.callback(
+    Output("scrape-filter-values", "options"),
+    Output("scrape-filter-values", "value"),
+    Input("scrape-filter-column", "value"),
+    State("scrape-source-data", "data"),
+)
+def populate_filter_values(column, data):
+    if not column or not data:
+        return [], []
+    values = sorted(
+        {str(row[column]) for row in data if row.get(column) is not None},
+        key=str.casefold,
+    )
+    options = [{"label": value, "value": value} for value in values]
+    return options, []
+
+
+@app.callback(
+    Output("scrape-table", "data"),
+    Input("scrape-source-data", "data"),
+    Input("scrape-filter-column", "value"),
+    Input("scrape-filter-values", "value"),
+)
+def filter_table(data, column, selected_values):
+    if not data:
+        return []
+    if not column or not selected_values:
+        return data
+    selected_values = set(selected_values)
+    return [row for row in data if str(row.get(column)) in selected_values]
