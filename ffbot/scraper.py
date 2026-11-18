@@ -134,7 +134,7 @@ def scrape(league, is_IDP: bool = False):
                 # row[week + ' projection'] = 0
                 # row[week + ' actual'] = 0
             elif points[0] == "*":
-                # Game hasn't occured yet
+                # Game hasn't occurred yet
                 row[week] = float(points[1:])
                 # row[week + ' projection'] = float(points[1:])
                 # row[week + ' actual'] = np.nan

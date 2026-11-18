@@ -55,7 +55,18 @@ test = [
     "pytest-cov",
 ]
 
+[tool.black]
+enable-unstable-feature = ['string_processing']
+line-length = 88
+preview = true
+
+[tool.codespell]
+count = true
+ignore-words-list = "TE,VOR,vor"
+skip = ".venv,data/*"
+
 [tool.isort]
 color_output = true
 known_local_folder = ["app", "components"]
+line_length = 88
 profile = "black"
