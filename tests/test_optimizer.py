@@ -1,5 +1,3 @@
-import pandas as pd
-
 import ffbot
 
 from . import POSITIONS, SCRAPER_FILE, TEAM

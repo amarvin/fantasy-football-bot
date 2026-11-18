@@ -13,9 +13,10 @@ about = dbc.Container(
         ),
         html.P(
             [
-                "ffbot is a Yahoo Fantasy Football assistant that gathers player projections "
-                "and helps compare potential roster moves. It brings player forecasts and "
-                "value-over-replacement analysis into one simple workflow."
+                "ffbot is a Yahoo Fantasy Football assistant that gathers player"
+                " projections and helps compare potential roster moves. It brings"
+                " player forecasts and value-over-replacement analysis into one simple"
+                " workflow."
             ],
             className="lead text-secondary mb-4",
         ),
@@ -29,7 +30,8 @@ about = dbc.Container(
                                     "Collect projections", className="h5 fw-semibold"
                                 ),
                                 html.P(
-                                    "Scrape the current player pool and weekly Yahoo projections.",
+                                    "Scrape the current player pool and weekly Yahoo"
+                                    " projections.",
                                     className="text-secondary mb-0",
                                 ),
                             ]
@@ -47,7 +49,8 @@ about = dbc.Container(
                                     "Review the player pool", className="h5 fw-semibold"
                                 ),
                                 html.P(
-                                    "Load a saved CSV, browse the available players, and filter by column values.",
+                                    "Load a saved CSV, browse the available players,"
+                                    " and filter by column values.",
                                     className="text-secondary mb-0",
                                 ),
                             ]
@@ -65,7 +68,8 @@ about = dbc.Container(
                                     "Compare roster moves", className="h5 fw-semibold"
                                 ),
                                 html.P(
-                                    "Use projected points and value over replacement to evaluate adds and drops.",
+                                    "Use projected points and value over replacement to"
+                                    " evaluate adds and drops.",
                                     className="text-secondary mb-0",
                                 ),
                             ]

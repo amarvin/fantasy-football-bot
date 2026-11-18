@@ -11,8 +11,12 @@ Automate playing Yahoo Fantasy Football
 
 ## Installation
 
+The source is currently hosted on [GitHub](https://github.com/amarvin/fantasy-football-bot).
+
+Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/ffbot).
+
 ```sh
-pip install ffbot
+pip install ffbot  # uv add ffbot
 ```
 
 ## Usage
@@ -76,10 +80,10 @@ Only one Waiver claim (for Jordon Howard) increases discounted points.
 
 ## Web app UI
 
-Install the `ffbot` web app UI with:
+Create and sync the project environment with `uv sync`. To install the web app UI dependencies, include the `ui` group:
 
 ```sh
-pip install -r ui\requirements-ui.txt
+uv sync --extra ui
 ```
 
 Configure your league settings in `.ui\app.py`, and then run the `ffbot` web app UI with:
@@ -98,9 +102,9 @@ Then open `localhost:8050` in a web browser to see:
 
 Please add Issues or submit Pull Requests!
 
-For local development, install optional testing dependencies and pre-commit hooks using
+For local development, install optional testing dependencies and set up Git hooks with `prek` using
 
 ```sh
-pip install ffbot[test]
-pre-commit install
+uv sync --all-extras --dev --group test
+uv run prek install
 ```

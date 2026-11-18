@@ -110,3 +110,6 @@ chromedriver.exe
 credentials.json
 *.mps
 .vscode
+
+# === uv specific ===
+uv.lock

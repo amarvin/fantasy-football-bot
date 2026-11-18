@@ -1,0 +1,25 @@
+[flake8]
+max-line-length = 88
+extend-ignore =
+    # E203: whitespace before ':', conflicts with black
+    E203
+    # E231: missing whitespace after ',', conflicts with black
+    E231
+    # E501: line too long (black handles this)
+    E501
+    # E503: line break before binary operator, conflicts with black
+    E503
+    # E701: multiple statements on one line (colon), conflicts with black when using inline if statements
+    E701
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    env,
+    .env,
+    .mypy_cache,
+    .pytest_cache,
+    .ipynb_checkpoints
