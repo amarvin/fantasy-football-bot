@@ -18,6 +18,8 @@ PUBLIC_LEAGUE_IDP = 216
 SEARCH_PLAYER_GROUPS = ["QB", "WR", "RB", "TE", "K", "DEF"]
 SEARCH_PLAYER_GROUPS_IDP = ["QB", "WR", "RB", "TE", "K", "D", "DB", "DL", "LB"]
 
+is_draft = False
+
 
 def create_session():
     """Create requests session with retries and random user-agent"""
