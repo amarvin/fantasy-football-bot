@@ -7,9 +7,10 @@ from dash import html
 app.layout = html.Div(
     [
         navbar,
-        body,
+        html.Main(body, className="flex-grow-1"),
         footer,
     ],
+    className="min-vh-100 d-flex flex-column bg-light",
 )
 
 if __name__ == "__main__":

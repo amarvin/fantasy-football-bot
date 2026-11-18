@@ -9,7 +9,7 @@ import ffbot
 
 scrape = html.Div(
     [
-        html.H1("Scrape"),
+        html.H2("1. Scrape player data", className="h4 fw-semibold mb-3"),
         dbc.Row(
             dbc.Col(
                 dbc.Button(
@@ -53,7 +53,7 @@ scrape = html.Div(
             striped=True,
             style={"display": "none"},
         ),
-        html.Div(id="scrape-status"),
+        html.Div(id="scrape-status", className="small text-secondary mt-2"),
         html.Br(),
         dbc.Row(
             dbc.Col(
@@ -75,32 +75,39 @@ scrape = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Dropdown(
-                        id="scrape-filter-column",
-                        placeholder="Select a column to filter",
-                        clearable=False,
-                    ),
+                    [
+                        dbc.Label("Column", className="small fw-semibold"),
+                        dcc.Dropdown(
+                            id="scrape-filter-column",
+                            placeholder="Select a column",
+                            clearable=False,
+                        ),
+                    ],
                     md=4,
                 ),
                 dbc.Col(
-                    dcc.Dropdown(
-                        id="scrape-filter-values",
-                        placeholder="Select one or more values",
-                        multi=True,
-                    ),
+                    [
+                        dbc.Label("Values", className="small fw-semibold"),
+                        dcc.Dropdown(
+                            id="scrape-filter-values",
+                            placeholder="Select one or more values",
+                            multi=True,
+                        ),
+                    ],
                     md=8,
                 ),
             ],
             id="scrape-filter-controls",
-            className="mb-2",
+            className="mb-3",
             style={"display": "none"},
         ),
         dcc.Store(id="scrape-source-data"),
         html.Div(
             [
-                html.Span("Week "),
-                html.Span(id="week"),
-            ]
+                html.Span("Loaded data · Week "),
+                dbc.Badge(id="week", color="secondary", className="ms-1"),
+            ],
+            className="small text-secondary mb-2",
         ),
         dash_table.DataTable(
             id="scrape-table",
@@ -111,12 +118,25 @@ scrape = html.Div(
             sort_action="native",
             style_as_list_view=True,
             style_data_conditional=[
-                {"if": {"column_type": "text"}, "textAlign": "left"}
+                {"if": {"column_type": "text"}, "textAlign": "left"},
+                {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
             ],
             style_header_conditional=[
                 {"if": {"column_type": "text"}, "textAlign": "left"}
             ],
             style_table={"overflowX": "auto"},
+            style_cell={
+                "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
+                "fontSize": "0.9rem",
+                "padding": "0.7rem 0.85rem",
+                "minWidth": "7rem",
+            },
+            style_header={
+                "backgroundColor": "#f1f5f9",
+                "color": "#334155",
+                "fontWeight": "600",
+                "borderBottom": "1px solid #cbd5e1",
+            },
         ),
     ]
 )

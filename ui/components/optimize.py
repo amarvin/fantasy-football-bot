@@ -8,9 +8,9 @@ import ffbot
 
 optimize = html.Div(
     [
-        html.H1("Optimize"),
+        html.H2("2. Optimize roster", className="h4 fw-semibold mb-3"),
         dbc.Button(
-            "Optimize",
+            "Find best moves",
             color="primary",
             id="optimize-button",
         ),
@@ -32,11 +32,25 @@ optimize = html.Div(
             sort_action="none",
             style_as_list_view=True,
             style_data_conditional=[
-                {"if": {"column_type": "text"}, "textAlign": "left"}
+                {"if": {"column_type": "text"}, "textAlign": "left"},
+                {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
             ],
             style_header_conditional=[
                 {"if": {"column_type": "text"}, "textAlign": "left"}
             ],
+            style_table={"overflowX": "auto"},
+            style_cell={
+                "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
+                "fontSize": "0.9rem",
+                "padding": "0.7rem 0.85rem",
+                "minWidth": "7rem",
+            },
+            style_header={
+                "backgroundColor": "#f1f5f9",
+                "color": "#334155",
+                "fontWeight": "600",
+                "borderBottom": "1px solid #cbd5e1",
+            },
         ),
     ]
 )
