@@ -12,7 +12,7 @@ def optimize_layout(results=None):
     results = results or {}
     return html.Div(
         [
-            html.H2("2. Optimize roster", className="h4 fw-semibold mb-3"),
+            html.H2("Optimize roster", className="h4 fw-semibold mb-3"),
             dbc.Button(
                 "Find best moves",
                 color="primary",

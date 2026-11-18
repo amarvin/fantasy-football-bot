@@ -74,6 +74,26 @@ The best free agent to add is Kansas City, which increases discounted points by 
 Two other free agent pickups improve discounted points.
 Only one Waiver claim (for Jordon Howard) increases discounted points.
 
+## Web app UI
+
+Install the `ffbot` web app UI with:
+
+```sh
+pip install -r ui\requirements-ui.txt
+```
+
+Configure your league settings in `.ui\app.py`, and then run the `ffbot` web app UI with:
+
+```sh
+python .ui\index.py
+```
+
+Then open `localhost:8050` in a web browser to see:
+
+![Scrape tab](ui/img/Scrape%20tab.png)
+
+![Optimize tab](ui/img/Optimize%20tab.png)
+
 ## Contribution
 
 Please add Issues or submit Pull Requests!

@@ -28,8 +28,8 @@ body = dbc.Container(
                 dbc.CardHeader(
                     dbc.Tabs(
                         [
-                            dbc.Tab(label="1. Scrape & load", tab_id="scrape-tab"),
-                            dbc.Tab(label="2. Optimize", tab_id="optimize-tab"),
+                            dbc.Tab(label="Scrape & load", tab_id="scrape-tab"),
+                            dbc.Tab(label="Optimize", tab_id="optimize-tab"),
                         ],
                         id="workflow-tabs",
                         active_tab="scrape-tab",

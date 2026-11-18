@@ -13,16 +13,28 @@ def scrape_layout(columns=None, data=None, week=None):
     data = data or []
     return html.Div(
         [
-            html.H2("1. Scrape player data", className="h4 fw-semibold mb-3"),
+            html.H2("Scrape player data", className="h4 fw-semibold mb-3"),
             dbc.Row(
-                dbc.Col(
-                    dbc.Button(
-                        "1. Scrape",
-                        className="me-1",
-                        color="primary",
-                        id="scrape-scrape-button",
+                [
+                    dbc.Col(
+                        dbc.Button(
+                            "Scrape",
+                            color="primary",
+                            id="scrape-scrape-button",
+                        ),
+                        width="auto",
                     ),
-                ),
+                    dbc.Col(
+                        dbc.Button(
+                            "Load CSV",
+                            color="secondary",
+                            outline=True,
+                            id="scrape-load-button",
+                        ),
+                        width="auto",
+                    ),
+                ],
+                className="g-2 mb-3",
             ),
             dbc.Modal(
                 [
@@ -57,17 +69,7 @@ def scrape_layout(columns=None, data=None, week=None):
                 striped=True,
                 style={"display": "none"},
             ),
-            html.Div(id="scrape-status", className="small text-secondary mt-2"),
-            html.Br(),
-            dbc.Row(
-                dbc.Col(
-                    dbc.Button(
-                        "2. Load",
-                        color="primary",
-                        id="scrape-load-button",
-                    ),
-                ),
-            ),
+            html.Div(id="scrape-status", className="small text-secondary mt-2 mb-3"),
             dbc.Progress(
                 id="load-progress",
                 value=100,
