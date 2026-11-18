@@ -1,6 +1,6 @@
-from runpy import run_path
 from io import open
 from os import path
+from runpy import run_path
 
 from setuptools import find_packages, setup
 
