@@ -163,6 +163,24 @@ def scrape(league, is_IDP: bool = False):
     columns = [f"Week {i}" for i in range(current_week(), 18)]
     df["Remaining"] = df[columns].sum(axis=1)
     available = df.loc[df["Owner ID"].isnull()]
+    if is_draft:
+        available.sort_values(by="Remaining", ascending=False, inplace=True)
+        more_to_draft = {
+            "QB": 20,
+            "RB": 49,
+            "WR": 57,
+            "TE": 16,
+            "K": 13,
+            "DEF": 13,
+        }
+        drop_indexes = []
+        for index, row in available.iterrows():
+            positions = row["Position"].split(",")
+            position = positions[0]  # TODO: pick their best position somehow
+            if more_to_draft[position] > 0:
+                drop_indexes.append(index)
+                more_to_draft[position] -= 1
+        available.drop(index=drop_indexes, inplace=True)
     means = (
         available.groupby(["Position"])["Remaining"].nlargest(3).groupby(level=0).mean()
     )
