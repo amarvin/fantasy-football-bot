@@ -34,14 +34,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
-    "black",
-    "flake8",
-    "isort[colors]",
-    "pandas[html]",
-    "prek",
-    "pytest",
-    "pytest-cov",
+ui = [
+    "dash~=4.5.0",
+    "dash-bootstrap-components~=2.0.4",
 ]
 
 [project.urls]
@@ -51,9 +46,13 @@ Homepage = "https://github.com/amarvin/fantasy-football-bot"
 exclude = ["contrib", "data", "dist", "docs", "tests"]
 
 [dependency-groups]
-ui = [
-    "dash~=4.5.0",
-    "dash-bootstrap-components~=2.0.4",
+dev = [
+    "prek",
+]
+test = [
+    "pandas[html]",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.isort]

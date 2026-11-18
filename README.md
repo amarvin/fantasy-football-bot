@@ -83,7 +83,7 @@ Only one Waiver claim (for Jordon Howard) increases discounted points.
 Create and sync the project environment with `uv sync`. To install the web app UI dependencies, include the `ui` group:
 
 ```sh
-uv sync --group ui
+uv sync --extra ui
 ```
 
 Configure your league settings in `.ui\app.py`, and then run the `ffbot` web app UI with:
@@ -105,6 +105,6 @@ Please add Issues or submit Pull Requests!
 For local development, install optional testing dependencies and set up Git hooks with `prek` using
 
 ```sh
-uv sync --extra test
+uv sync --all-extras --dev --group test
 uv run prek install
 ```
