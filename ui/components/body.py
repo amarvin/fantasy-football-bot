@@ -1,7 +1,8 @@
 import dash_bootstrap_components as dbc
+from dash import html
+
 from components.optimize import optimize
 from components.scrape import scrape
-from dash import html
 
 body = dbc.Container(
     [

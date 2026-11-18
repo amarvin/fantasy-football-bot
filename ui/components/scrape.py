@@ -1,11 +1,12 @@
 from pathlib import Path
 
 import dash_bootstrap_components as dbc
-from app import LEAGUE, app
 from dash import Input, Output, State, ctx, dash_table, dcc, html, no_update
 from pandas.api.types import is_string_dtype
 
 import ffbot
+
+from app import LEAGUE, app
 
 scrape = html.Div(
     [

@@ -9,6 +9,7 @@ app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     prevent_initial_callbacks=True,
+    suppress_callback_exceptions=True,
     title="ffbot",
 )
 server = app.server

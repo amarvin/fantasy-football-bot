@@ -1,10 +1,11 @@
 import dash_bootstrap_components as dbc
 import pandas as pd
-from app import POSITIONS, TEAM, app
 from dash import Input, Output, State, dash_table, html
 from dash.dash_table.Format import Format, Scheme
 
 import ffbot
+
+from app import POSITIONS, TEAM, app
 
 optimize = html.Div(
     [
