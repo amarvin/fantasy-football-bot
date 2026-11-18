@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=68", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ffbot"
-version = "1.2.13"
+dynamic = ["version"]
 description = "Automate playing Yahoo Fantasy Football"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -44,6 +44,9 @@ Homepage = "https://github.com/amarvin/fantasy-football-bot"
 
 [tool.setuptools.packages.find]
 exclude = ["contrib", "data", "dist", "docs", "tests"]
+
+[tool.setuptools_scm]
+fallback_version = "0+unknown"
 
 [dependency-groups]
 dev = [
