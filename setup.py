@@ -1,11 +1,11 @@
+from runpy import run_path
 from io import open
 from os import path
 
 from setuptools import find_packages, setup
 
-from ffbot.constants import VERSION
-
 here = path.abspath(path.dirname(__file__))
+VERSION = run_path(path.join(here, "ffbot", "constants.py"))["VERSION"]
 
 # Get the long description from the README file
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
