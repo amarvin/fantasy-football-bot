@@ -1,7 +1,0 @@
-black
-flake8
-isort[colors]
-pandas[html]
-pre-commit
-pytest
-pytest-cov

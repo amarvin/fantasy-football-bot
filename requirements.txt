@@ -1,8 +1,0 @@
-beautifulsoup4
-loguru
-lxml
-pandas
-pulp[cbc]
-requests
-tqdm
-user_agent

@@ -1,3 +1,0 @@
-dash~=4.5.0
-dash-bootstrap-components~=2.0.4
--e .
