@@ -1,3 +1,4 @@
 [tool.isort]
 color_output = true
+known_local_folder = ["app", "components"]
 profile = "black"
