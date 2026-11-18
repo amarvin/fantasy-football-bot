@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync --no-build
-        uv pip --no-build install setuptools wheel twine
+        uv pip install --no-build setuptools wheel twine
     - name: Build package
       run: uv build
     - name: Store the distribution packages
