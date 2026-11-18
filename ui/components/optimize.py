@@ -14,6 +14,14 @@ optimize = html.Div(
             color="primary",
             id="optimize-button",
         ),
+        dbc.Progress(
+            id="optimize-progress",
+            value=100,
+            label="Optimizing…",
+            animated=True,
+            striped=True,
+            style={"display": "none"},
+        ),
         dash_table.DataTable(
             id="optimize-table",
             fill_width=False,
@@ -34,6 +42,13 @@ optimize = html.Div(
     Input("optimize-button", "n_clicks"),
     State("scrape-table", "data"),
     State("week", "children"),
+    running=[
+        (
+            Output("optimize-progress", "style"),
+            {"display": "block"},
+            {"display": "none"},
+        )
+    ],
 )
 def run_optimize(_, data, week):
     # Load data
