@@ -11,8 +11,12 @@ Automate playing Yahoo Fantasy Football
 
 ## Installation
 
+The source is currently hosted on [GitHub](https://github.com/amarvin/fantasy-football-bot).
+
+Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/ffbot).
+
 ```sh
-pip install ffbot
+pip install ffbot  # uv add ffbot
 ```
 
 ## Usage
