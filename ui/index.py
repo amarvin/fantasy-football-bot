@@ -10,6 +10,11 @@ from components.navbar import navbar
 app.layout = html.Div(
     [
         dcc.Location(id="url", refresh=False),
+        dcc.Store(id="scrape-source-data"),
+        dcc.Store(id="scrape-visible-data"),
+        dcc.Store(id="scrape-columns"),
+        dcc.Store(id="week-value"),
+        dcc.Store(id="optimize-results"),
         navbar,
         html.Main(id="page-content", className="flex-grow-1"),
         footer,

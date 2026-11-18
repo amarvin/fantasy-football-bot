@@ -8,139 +8,143 @@ import ffbot
 
 from app import LEAGUE, app
 
-scrape = html.Div(
-    [
-        html.H2("1. Scrape player data", className="h4 fw-semibold mb-3"),
-        dbc.Row(
-            dbc.Col(
-                dbc.Button(
-                    "1. Scrape",
-                    className="me-1",
-                    color="primary",
-                    id="scrape-scrape-button",
+
+def scrape_layout(columns=None, data=None, week=None):
+    data = data or []
+    return html.Div(
+        [
+            html.H2("1. Scrape player data", className="h4 fw-semibold mb-3"),
+            dbc.Row(
+                dbc.Col(
+                    dbc.Button(
+                        "1. Scrape",
+                        className="me-1",
+                        color="primary",
+                        id="scrape-scrape-button",
+                    ),
                 ),
             ),
-        ),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Select scraped data")),
-                dbc.ModalBody(
-                    [
-                        html.Div(id="scrape-file-picker-message"),
-                        dcc.RadioItems(id="scrape-file-picker-options"),
-                    ]
-                ),
-                dbc.ModalFooter(
-                    [
-                        dbc.Button(
-                            "Cancel", id="scrape-cancel-load", color="secondary"
-                        ),
-                        dbc.Button(
-                            "Load selected",
-                            id="scrape-confirm-load",
-                            color="primary",
-                        ),
-                    ]
-                ),
-            ],
-            id="scrape-file-picker",
-            is_open=False,
-        ),
-        dbc.Progress(
-            id="scrape-progress",
-            value=100,
-            label="Scraping…",
-            animated=True,
-            striped=True,
-            style={"display": "none"},
-        ),
-        html.Div(id="scrape-status", className="small text-secondary mt-2"),
-        html.Br(),
-        dbc.Row(
-            dbc.Col(
-                dbc.Button(
-                    "2. Load",
-                    color="primary",
-                    id="scrape-load-button",
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle("Select scraped data")),
+                    dbc.ModalBody(
+                        [
+                            html.Div(id="scrape-file-picker-message"),
+                            dcc.RadioItems(id="scrape-file-picker-options"),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Cancel", id="scrape-cancel-load", color="secondary"
+                            ),
+                            dbc.Button(
+                                "Load selected",
+                                id="scrape-confirm-load",
+                                color="primary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="scrape-file-picker",
+                is_open=False,
+            ),
+            dbc.Progress(
+                id="scrape-progress",
+                value=100,
+                label="Scraping…",
+                animated=True,
+                striped=True,
+                style={"display": "none"},
+            ),
+            html.Div(id="scrape-status", className="small text-secondary mt-2"),
+            html.Br(),
+            dbc.Row(
+                dbc.Col(
+                    dbc.Button(
+                        "2. Load",
+                        color="primary",
+                        id="scrape-load-button",
+                    ),
                 ),
             ),
-        ),
-        dbc.Progress(
-            id="load-progress",
-            value=100,
-            label="Loading…",
-            animated=True,
-            striped=True,
-            style={"display": "none"},
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        dbc.Label("Column", className="small fw-semibold"),
-                        dcc.Dropdown(
-                            id="scrape-filter-column",
-                            placeholder="Select a column",
-                            clearable=False,
-                        ),
-                    ],
-                    md=4,
-                ),
-                dbc.Col(
-                    [
-                        dbc.Label("Values", className="small fw-semibold"),
-                        dcc.Dropdown(
-                            id="scrape-filter-values",
-                            placeholder="Select one or more values",
-                            multi=True,
-                        ),
-                    ],
-                    md=8,
-                ),
-            ],
-            id="scrape-filter-controls",
-            className="mb-3",
-            style={"display": "none"},
-        ),
-        dcc.Store(id="scrape-source-data"),
-        html.Div(
-            [
-                html.Span("Loaded data · Week "),
-                dbc.Badge(id="week", color="secondary", className="ms-1"),
-            ],
-            className="small text-secondary mb-2",
-        ),
-        dash_table.DataTable(
-            id="scrape-table",
-            filter_action="none",
-            page_action="native",
-            page_current=0,
-            page_size=10,
-            sort_action="native",
-            style_as_list_view=True,
-            style_data_conditional=[
-                {"if": {"column_type": "text"}, "textAlign": "left"},
-                {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
-            ],
-            style_header_conditional=[
-                {"if": {"column_type": "text"}, "textAlign": "left"}
-            ],
-            style_table={"overflowX": "auto"},
-            style_cell={
-                "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
-                "fontSize": "0.9rem",
-                "padding": "0.7rem 0.85rem",
-                "minWidth": "7rem",
-            },
-            style_header={
-                "backgroundColor": "#f1f5f9",
-                "color": "#334155",
-                "fontWeight": "600",
-                "borderBottom": "1px solid #cbd5e1",
-            },
-        ),
-    ]
-)
+            dbc.Progress(
+                id="load-progress",
+                value=100,
+                label="Loading…",
+                animated=True,
+                striped=True,
+                style={"display": "none"},
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            dbc.Label("Column", className="small fw-semibold"),
+                            dcc.Dropdown(
+                                id="scrape-filter-column",
+                                placeholder="Select a column",
+                                clearable=False,
+                            ),
+                        ],
+                        md=4,
+                    ),
+                    dbc.Col(
+                        [
+                            dbc.Label("Values", className="small fw-semibold"),
+                            dcc.Dropdown(
+                                id="scrape-filter-values",
+                                placeholder="Select one or more values",
+                                multi=True,
+                            ),
+                        ],
+                        md=8,
+                    ),
+                ],
+                id="scrape-filter-controls",
+                className="mb-3",
+                style={"display": "block" if columns else "none"},
+            ),
+            html.Div(
+                [
+                    html.Span("Loaded data · Week "),
+                    dbc.Badge(week, id="week", color="secondary", className="ms-1"),
+                ],
+                className="small text-secondary mb-2",
+            ),
+            dash_table.DataTable(
+                id="scrape-table",
+                columns=columns or [],
+                data=data,
+                filter_action="none",
+                page_action="native",
+                page_current=0,
+                page_size=10,
+                sort_action="native",
+                style_as_list_view=True,
+                style_data_conditional=[
+                    {"if": {"column_type": "text"}, "textAlign": "left"},
+                    {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
+                ],
+                style_header_conditional=[
+                    {"if": {"column_type": "text"}, "textAlign": "left"}
+                ],
+                style_table={"overflowX": "auto"},
+                style_cell={
+                    "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
+                    "fontSize": "0.9rem",
+                    "padding": "0.7rem 0.85rem",
+                    "minWidth": "7rem",
+                },
+                style_header={
+                    "backgroundColor": "#f1f5f9",
+                    "color": "#334155",
+                    "fontWeight": "600",
+                    "borderBottom": "1px solid #cbd5e1",
+                },
+            ),
+        ]
+    )
 
 
 @app.callback(
@@ -169,8 +173,8 @@ def toggle_file_picker(_, __, ___):
 
 @app.callback(
     Output("scrape-status", "children"),
-    Output("week", "children"),
-    Output("scrape-table", "columns"),
+    Output("week-value", "data"),
+    Output("scrape-columns", "data"),
     Output("scrape-source-data", "data"),
     Input("scrape-scrape-button", "n_clicks"),
     running=[
@@ -178,7 +182,9 @@ def toggle_file_picker(_, __, ___):
     ],
     prevent_initial_call=True,
 )
-def run_scrape(_):
+def run_scrape(n_clicks):
+    if not n_clicks:
+        return no_update, no_update, no_update, no_update
     week = ffbot.current_week()
     df = ffbot.scrape(LEAGUE)
     ffbot.save(df, week)
@@ -202,8 +208,8 @@ def run_scrape(_):
 
 @app.callback(
     Output("scrape-status", "children", allow_duplicate=True),
-    Output("week", "children", allow_duplicate=True),
-    Output("scrape-table", "columns", allow_duplicate=True),
+    Output("week-value", "data", allow_duplicate=True),
+    Output("scrape-columns", "data", allow_duplicate=True),
     Output("scrape-source-data", "data", allow_duplicate=True),
     Input("scrape-confirm-load", "n_clicks"),
     State("scrape-file-picker-options", "value"),
@@ -212,8 +218,8 @@ def run_scrape(_):
     ],
     prevent_initial_call=True,
 )
-def load_selected(_, filepath):
-    if not filepath:
+def load_selected(n_clicks, filepath):
+    if not n_clicks or not filepath:
         return no_update, no_update, no_update, no_update
     df, week = ffbot.load(filepath)
     columns = [
@@ -229,59 +235,63 @@ def load_selected(_, filepath):
     return f"Loaded {Path(filepath).name}.", week, columns, data
 
 
-@app.callback(
+app.clientside_callback(
+    """function(week) { return week == null ? '' : week; }""",
+    Output("week", "children"),
+    Input("week-value", "data"),
+)
+app.clientside_callback(
+    """function(data) {
+        return {display: data && data.length ? 'block' : 'none'};
+    }""",
     Output("scrape-filter-controls", "style"),
     Input("scrape-source-data", "data"),
 )
-def toggle_filter_controls(data):
-    return {"display": "block"} if data else {"display": "none"}
-
-
-@app.callback(
+app.clientside_callback(
+    """function(data, selectedColumn) {
+        const hidden = new Set(['ID', 'Owner ID']);
+        const columns = data && data.length
+            ? Object.keys(data[0]).filter(column => !hidden.has(column))
+            : [];
+        const options = columns.map(column => ({label: column, value: column}));
+        const value = columns.includes(selectedColumn)
+            ? selectedColumn
+            : (columns[0] || null);
+        return [options, value];
+    }""",
     Output("scrape-filter-column", "options"),
     Output("scrape-filter-column", "value"),
     Input("scrape-source-data", "data"),
     State("scrape-filter-column", "value"),
 )
-def populate_filter_columns(data, selected_column):
-    columns = (
-        [column for column in data[0] if column not in {"ID", "Owner ID"}]
-        if data
-        else []
-    )
-    options = [{"label": column, "value": column} for column in columns]
-    if selected_column not in columns:
-        selected_column = columns[0] if columns else None
-    return options, selected_column
-
-
-@app.callback(
+app.clientside_callback(
+    """function(column, data) {
+        if (!column || !data || !data.length) return [[], []];
+        const values = [...new Set(data
+            .map(row => row[column])
+            .filter(value => value != null)
+            .map(value => String(value)))];
+        values.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+        return [values.map(value => ({label: value, value: value})), []];
+    }""",
     Output("scrape-filter-values", "options"),
     Output("scrape-filter-values", "value"),
     Input("scrape-filter-column", "value"),
     State("scrape-source-data", "data"),
 )
-def populate_filter_values(column, data):
-    if not column or not data:
-        return [], []
-    values = sorted(
-        {str(row[column]) for row in data if row.get(column) is not None},
-        key=str.casefold,
-    )
-    options = [{"label": value, "value": value} for value in values]
-    return options, []
-
-
-@app.callback(
+app.clientside_callback(
+    """function(data, column, selectedValues) {
+        if (!data || !data.length) return [[], []];
+        let visible = data;
+        if (column && selectedValues && selectedValues.length) {
+            const selected = new Set(selectedValues);
+            visible = data.filter(row => selected.has(String(row[column])));
+        }
+        return [visible, visible];
+    }""",
     Output("scrape-table", "data"),
+    Output("scrape-visible-data", "data"),
     Input("scrape-source-data", "data"),
     Input("scrape-filter-column", "value"),
     Input("scrape-filter-values", "value"),
 )
-def filter_table(data, column, selected_values):
-    if not data:
-        return []
-    if not column or not selected_values:
-        return data
-    selected_values = set(selected_values)
-    return [row for row in data if str(row.get(column)) in selected_values]
