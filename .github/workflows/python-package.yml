@@ -28,13 +28,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
     - name: Install pre-commit dependencies
-      run: uv sync --only-group dev
+      run: uv --no-build sync --only-group dev
     - name: Run pre-commit
-      run: uv run prek run --show-diff-on-failure --color=always --all-files
+      run: uv --no-build run prek run --show-diff-on-failure --color=always --all-files
     - name: Install pytest dependencies
-      run: uv sync --group test
+      run: uv --no-build sync --group test
     - name: Install pulp version
       run: uv pip install "pulp${{ matrix.pulp-version }}"
     - name: Test with pytest
