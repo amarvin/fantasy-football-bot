@@ -61,51 +61,60 @@ def scrape_layout(columns=None, data=None, week=None):
                 id="scrape-file-picker",
                 is_open=False,
             ),
-            dbc.Progress(
-                id="scrape-progress",
-                value=100,
-                label="Scraping…",
-                animated=True,
-                striped=True,
-                style={"display": "none"},
+            dbc.Collapse(
+                dbc.Progress(
+                    value=100,
+                    label="Scraping…",
+                    animated=True,
+                    striped=True,
+                ),
+                id="scrape-progress-collapse",
+                is_open=False,
+                className="mb-2",
             ),
             html.Div(id="scrape-status", className="small text-secondary mt-2 mb-3"),
-            dbc.Progress(
-                id="load-progress",
-                value=100,
-                label="Loading…",
-                animated=True,
-                striped=True,
-                style={"display": "none"},
+            dbc.Collapse(
+                dbc.Progress(
+                    value=100,
+                    label="Loading…",
+                    animated=True,
+                    striped=True,
+                ),
+                id="load-progress-collapse",
+                is_open=False,
+                className="mb-2",
             ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label("Column", className="small fw-semibold"),
-                            dcc.Dropdown(
-                                id="scrape-filter-column",
-                                placeholder="Select a column",
-                                clearable=False,
-                            ),
-                        ],
-                        md=4,
-                    ),
-                    dbc.Col(
-                        [
-                            dbc.Label("Values", className="small fw-semibold"),
-                            dcc.Dropdown(
-                                id="scrape-filter-values",
-                                placeholder="Select one or more values",
-                                multi=True,
-                            ),
-                        ],
-                        md=8,
-                    ),
-                ],
-                id="scrape-filter-controls",
+            dbc.Collapse(
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                dbc.Label("Column", className="small fw-semibold"),
+                                dcc.Dropdown(
+                                    id="scrape-filter-column",
+                                    placeholder="Select a column",
+                                    clearable=False,
+                                ),
+                            ],
+                            md=4,
+                        ),
+                        dbc.Col(
+                            [
+                                dbc.Label("Values", className="small fw-semibold"),
+                                dcc.Dropdown(
+                                    id="scrape-filter-values",
+                                    placeholder="Select one or more values",
+                                    multi=True,
+                                ),
+                            ],
+                            md=8,
+                        ),
+                    ],
+                    id="scrape-filter-controls",
+                ),
+                id="scrape-filter-collapse",
+                is_open=bool(columns),
                 className="mb-3",
-                style={"display": "block" if columns else "none"},
             ),
             html.Div(
                 [
@@ -114,36 +123,38 @@ def scrape_layout(columns=None, data=None, week=None):
                 ],
                 className="small text-secondary mb-2",
             ),
-            dash_table.DataTable(
-                id="scrape-table",
-                columns=columns or [],
-                data=data,
-                filter_action="none",
-                page_action="native",
-                page_current=0,
-                page_size=10,
-                sort_action="native",
-                style_as_list_view=True,
-                style_data_conditional=[
-                    {"if": {"column_type": "text"}, "textAlign": "left"},
-                    {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
-                ],
-                style_header_conditional=[
-                    {"if": {"column_type": "text"}, "textAlign": "left"}
-                ],
-                style_table={"overflowX": "auto"},
-                style_cell={
-                    "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
-                    "fontSize": "0.9rem",
-                    "padding": "0.7rem 0.85rem",
-                    "minWidth": "7rem",
-                },
-                style_header={
-                    "backgroundColor": "#f1f5f9",
-                    "color": "#334155",
-                    "fontWeight": "600",
-                    "borderBottom": "1px solid #cbd5e1",
-                },
+            html.Div(
+                dash_table.DataTable(
+                    id="scrape-table",
+                    columns=columns or [],
+                    data=data,
+                    filter_action="none",
+                    page_action="native",
+                    page_current=0,
+                    page_size=10,
+                    sort_action="native",
+                    style_as_list_view=True,
+                    style_data_conditional=[
+                        {"if": {"column_type": "text"}, "textAlign": "left"},
+                        {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
+                    ],
+                    style_header_conditional=[
+                        {"if": {"column_type": "text"}, "textAlign": "left"}
+                    ],
+                    style_cell={
+                        "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
+                        "fontSize": "0.9rem",
+                        "padding": "0.7rem 0.85rem",
+                        "minWidth": "7rem",
+                    },
+                    style_header={
+                        "backgroundColor": "#f1f5f9",
+                        "color": "#334155",
+                        "fontWeight": "600",
+                        "borderBottom": "1px solid #cbd5e1",
+                    },
+                ),
+                className="table-responsive",
             ),
         ]
     )
@@ -180,7 +191,7 @@ def toggle_file_picker(_, __, ___):
     Output("scrape-source-data", "data"),
     Input("scrape-scrape-button", "n_clicks"),
     running=[
-        (Output("scrape-progress", "style"), {"display": "block"}, {"display": "none"}),
+        (Output("scrape-progress-collapse", "is_open"), True, False),
     ],
     prevent_initial_call=True,
 )
@@ -215,9 +226,7 @@ def run_scrape(n_clicks):
     Output("scrape-source-data", "data", allow_duplicate=True),
     Input("scrape-confirm-load", "n_clicks"),
     State("scrape-file-picker-options", "value"),
-    running=[
-        (Output("load-progress", "style"), {"display": "block"}, {"display": "none"})
-    ],
+    running=[(Output("load-progress-collapse", "is_open"), True, False)],
     prevent_initial_call=True,
 )
 def load_selected(n_clicks, filepath):
@@ -244,9 +253,9 @@ app.clientside_callback(
 )
 app.clientside_callback(
     """function(data) {
-        return {display: data && data.length ? 'block' : 'none'};
+        return Boolean(data && data.length);
     }""",
-    Output("scrape-filter-controls", "style"),
+    Output("scrape-filter-collapse", "is_open"),
     Input("scrape-source-data", "data"),
 )
 app.clientside_callback(

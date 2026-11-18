@@ -18,45 +18,50 @@ def optimize_layout(results=None):
                 color="primary",
                 id="optimize-button",
             ),
-            dbc.Progress(
-                id="optimize-progress",
-                value=100,
-                label="Optimizing…",
-                animated=True,
-                striped=True,
-                style={"display": "none"},
+            dbc.Collapse(
+                dbc.Progress(
+                    value=100,
+                    label="Optimizing…",
+                    animated=True,
+                    striped=True,
+                ),
+                id="optimize-progress-collapse",
+                is_open=False,
+                className="mb-2",
             ),
-            dash_table.DataTable(
-                id="optimize-table",
-                columns=results.get("columns", []),
-                data=results.get("data", []),
-                fill_width=False,
-                filter_action="none",
-                page_action="native",
-                page_current=0,
-                page_size=10,
-                sort_action="none",
-                style_as_list_view=True,
-                style_data_conditional=[
-                    {"if": {"column_type": "text"}, "textAlign": "left"},
-                    {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
-                ],
-                style_header_conditional=[
-                    {"if": {"column_type": "text"}, "textAlign": "left"}
-                ],
-                style_table={"overflowX": "auto"},
-                style_cell={
-                    "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
-                    "fontSize": "0.9rem",
-                    "padding": "0.7rem 0.85rem",
-                    "minWidth": "7rem",
-                },
-                style_header={
-                    "backgroundColor": "#f1f5f9",
-                    "color": "#334155",
-                    "fontWeight": "600",
-                    "borderBottom": "1px solid #cbd5e1",
-                },
+            html.Div(
+                dash_table.DataTable(
+                    id="optimize-table",
+                    columns=results.get("columns", []),
+                    data=results.get("data", []),
+                    fill_width=False,
+                    filter_action="none",
+                    page_action="native",
+                    page_current=0,
+                    page_size=10,
+                    sort_action="none",
+                    style_as_list_view=True,
+                    style_data_conditional=[
+                        {"if": {"column_type": "text"}, "textAlign": "left"},
+                        {"if": {"row_index": "odd"}, "backgroundColor": "#f8fafc"},
+                    ],
+                    style_header_conditional=[
+                        {"if": {"column_type": "text"}, "textAlign": "left"}
+                    ],
+                    style_cell={
+                        "fontFamily": "system-ui, -apple-system, Segoe UI, sans-serif",
+                        "fontSize": "0.9rem",
+                        "padding": "0.7rem 0.85rem",
+                        "minWidth": "7rem",
+                    },
+                    style_header={
+                        "backgroundColor": "#f1f5f9",
+                        "color": "#334155",
+                        "fontWeight": "600",
+                        "borderBottom": "1px solid #cbd5e1",
+                    },
+                ),
+                className="table-responsive",
             ),
         ]
     )
@@ -69,9 +74,9 @@ def optimize_layout(results=None):
     State("week-value", "data"),
     running=[
         (
-            Output("optimize-progress", "style"),
-            {"display": "block"},
-            {"display": "none"},
+            Output("optimize-progress-collapse", "is_open"),
+            True,
+            False,
         )
     ],
 )
