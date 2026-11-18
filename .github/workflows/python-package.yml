@@ -14,6 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        pulp-version: ["<4.0.0", ">=4.0.0"]
+        exclude:
+          - python-version: "3.10"
+            pulp-version: ">=4.0.0"
+          - python-version: "3.11"
+            pulp-version: ">=4.0.0"
 
     steps:
     - uses: actions/checkout@v2
@@ -29,6 +35,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install "pulp${{ matrix.pulp-version }}"
     - name: Sort imports with isort
       run: isort . --check --color --diff
     - name: Code format with black

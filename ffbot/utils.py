@@ -16,7 +16,7 @@ def save(df, week):
 
     # Create filename
     startTime = datetime.now()
-    filename = join(folder, "{:%Y-%m-%d %H%M} week {}.csv".format(startTime, week))
+    filename = join(folder, f"{startTime:%Y-%m-%d %H%M} week {week}.csv")
 
     # Save data
     df.to_csv(filename, index=False)
