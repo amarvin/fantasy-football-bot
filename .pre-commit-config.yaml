@@ -12,6 +12,10 @@ repos:
   hooks:
     - id: codespell
       additional_dependencies: [tomli]
+- repo: https://github.com/lyz-code/yamlfix/
+  rev: 1.19.1
+  hooks:
+    - id: yamlfix
 - repo: https://github.com/hukkin/mdformat
   rev: 1.0.0
   hooks:
