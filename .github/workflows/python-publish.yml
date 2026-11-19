@@ -1,54 +1,48 @@
+---
 name: Upload Python Package
-
 on:
   release:
     types: [published]
-
 permissions:
   contents: read
-
 jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install uv
-      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-    - name: Install dependencies
-      run: |
-        uv sync --no-build
-        uv pip install --no-build setuptools wheel twine
-    - name: Build package
-      run: uv build
-    - name: Store the distribution packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+      - name: Install dependencies
+        run: |
+          uv sync --no-build
+          uv pip install --no-build setuptools wheel twine
+      - name: Build package
+        run: uv build
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
   deploy:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    needs:
-    - build
+    needs: [build]
     runs-on: ubuntu-latest
 
     # Specifying a GitHub environment is optional, but strongly encouraged
-    #environment: release
+    # environment: release
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
-
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
